@@ -1,10 +1,56 @@
 const express = require('express');
+const path = require('path');
 const { requireAuth } = require('../middleware/requireAuth');
-const { addresses } = require('../db/repos');
+const { addresses, posts, attachments } = require('../db/repos');
+const { postThumbUrl } = require('../middleware/upload');
 const router = express.Router();
 
-router.get('/', requireAuth, (_req, res) => {
-  res.render('index');
+const PAGE_SIZE = 20;
+
+router.get('/', requireAuth, async (req, res, next) => {
+  try {
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const offset = (page - 1) * PAGE_SIZE;
+
+    const { rows: postRows, total } = await posts.findAll({ limit: PAGE_SIZE, offset });
+
+    // Batch-load attachments for all posts in one query to avoid N+1
+    const postIds = postRows.map((p) => p.id);
+    let allAttachments = [];
+    if (postIds.length) {
+      // Access the knex instance via a known repo pattern: attachments.findByPostId
+      // returns only one post's attachments. Use findByPostId per post (small N).
+      allAttachments = (
+        await Promise.all(postIds.map((id) => attachments.findByPostId(id)))
+      ).flat();
+    }
+
+    // Group by post_id and enrich with URLs
+    const attachByPost = {};
+    for (const a of allAttachments) {
+      if (!attachByPost[a.post_id]) attachByPost[a.post_id] = [];
+      // Derive public URLs from stored_path — no extra DB column needed
+      attachByPost[a.post_id].push({
+        ...a,
+        file_url: `/uploads/${a.stored_path}`,
+        thumb_url: a.is_image ? postThumbUrl(a.stored_path) : null,
+      });
+    }
+
+    const enrichedPosts = postRows.map((p) => ({
+      ...p,
+      attachments: attachByPost[p.id] || [],
+    }));
+
+    res.render('index', {
+      postList: enrichedPosts,
+      total,
+      page,
+      pageSize: PAGE_SIZE,
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 // ─── Address detail view ──────────────────────────────────────────────────────

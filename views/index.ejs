@@ -2,8 +2,86 @@
 
 <section id="news">
   <h2>News</h2>
-  <p style="color:#999">News-Stream folgt.</p>
+
+  <!-- Post form — multipart because of file uploads, CSRF token in query param -->
+  <details class="post-form-wrapper" id="post-form-toggle">
+    <summary class="btn" style="cursor:pointer;list-style:none;display:inline-block;margin-bottom:1rem">
+      + Beitrag schreiben
+    </summary>
+    <form action="/posts?_csrf=<%= encodeURIComponent(csrfToken) %>"
+          method="POST" enctype="multipart/form-data" class="post-form">
+
+      <label>
+        Titel <small>(optional)</small>
+        <input type="text" name="title" placeholder="Kurzer Titel…" maxlength="200">
+      </label>
+
+      <label>
+        Beitrag <span style="color:#c00">*</span>
+        <textarea name="body" rows="5" placeholder="Was gibt es Neues im Quartier?" required></textarea>
+      </label>
+
+      <label>
+        Link <small>(optional)</small>
+        <input type="url" name="hyperlink" placeholder="https://…">
+      </label>
+
+      <label>
+        Anhänge <small>(optional, max <%= typeof MAX_ATTACHMENT_MB !== 'undefined' ? MAX_ATTACHMENT_MB : 90 %> MB pro Datei)</small>
+        <input type="file" name="attachments" multiple>
+      </label>
+
+      <div style="margin-top:0.75rem">
+        <button type="submit">Veröffentlichen</button>
+      </div>
+    </form>
+  </details>
+
+  <!-- Post list -->
+  <% if (postList && postList.length > 0) { %>
+    <div class="post-list">
+      <% postList.forEach(function(post) { %>
+        <%- include('partials/post', { post: post }) %>
+      <% }); %>
+    </div>
+
+    <!-- Pagination -->
+    <% var totalPages = Math.ceil(total / pageSize); %>
+    <% if (totalPages > 1) { %>
+      <nav class="pagination">
+        <% if (page > 1) { %><a href="/?page=<%= page - 1 %>#news">← Neuer</a><% } %>
+        <span style="padding:0.3rem 0.5rem;color:#666">Seite <%= page %> / <%= totalPages %></span>
+        <% if (page < totalPages) { %><a href="/?page=<%= page + 1 %>#news">Älter →</a><% } %>
+      </nav>
+    <% } %>
+  <% } else { %>
+    <p style="color:#999;margin-top:1rem">Noch keine Beiträge. Schreib den ersten!</p>
+  <% } %>
 </section>
+
+<!-- Lightbox overlay -->
+<div id="lightbox" class="lightbox-overlay" style="display:none" onclick="closeLightbox()">
+  <div class="lightbox-inner" onclick="event.stopPropagation()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="">
+  </div>
+</div>
+
+<script>
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+    document.body.style.overflow = '';
+    document.getElementById('lightbox-img').src = '';
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox();
+  });
+</script>
 
 <section id="karte">
   <h2>Karte</h2>

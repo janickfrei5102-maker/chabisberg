@@ -44,6 +44,10 @@ app.use(express.static(path.join(__dirname, '../public')));
 // Individual thumbnail URLs are not guessable (UUID-based filenames), providing
 // obscurity-based protection for profile pictures accessed via direct URL.
 app.use('/thumbs', express.static(path.join(process.env.THUMBNAIL_DIR || './thumbnails')));
+// Serve uploaded files (post attachments, resident original pictures).
+// Files have UUID-based names — not guessable. URLs are only shown to
+// authenticated users by the application templates.
+app.use('/uploads', express.static(path.join(process.env.UPLOAD_DIR || './uploads')));
 
 // Session store: SQLite in production/dev, MemoryStore (express-session built-in) in test
 let sessionStore;
@@ -107,6 +111,7 @@ app.set('views', path.join(__dirname, '../views'));
 app.use('/auth', require('./routes/auth'));
 app.use('/admin', require('./routes/admin'));
 app.use('/profile', require('./routes/profile'));
+app.use('/posts', require('./routes/posts'));
 app.use('/api', require('./routes/api'));
 app.use('/', require('./routes/index'));
 

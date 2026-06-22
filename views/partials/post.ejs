@@ -1,0 +1,56 @@
+<article class="post-card" id="post-<%= post.id %>">
+  <header class="post-header">
+    <div class="post-meta">
+      <strong><%= post.author_username %></strong>
+      <time datetime="<%= post.created_at %>">
+        <%= new Date(post.created_at).toLocaleDateString('de-CH', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+      </time>
+    </div>
+    <% if (user && (user.id === post.author_user_id || user.role === 'admin')) { %>
+      <form action="/posts/<%= post.id %>/delete" method="POST" class="post-delete-form"
+            onsubmit="return confirm('Post wirklich löschen?')">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <button type="submit" class="btn-danger btn-sm">Löschen</button>
+      </form>
+    <% } %>
+  </header>
+
+  <% if (post.title) { %><h3 class="post-title"><%= post.title %></h3><% } %>
+
+  <div class="post-body"><%= post.body.replace(/\n/g, '<br>') %></div>
+
+  <% if (post.hyperlink) { %>
+    <p class="post-link">
+      🔗 <a href="<%= post.hyperlink %>" target="_blank" rel="noopener noreferrer">
+        <%= post.hyperlink.length > 60 ? post.hyperlink.slice(0, 60) + '…' : post.hyperlink %>
+      </a>
+    </p>
+  <% } %>
+
+  <%
+    var images = post.attachments.filter(function(a) { return a.is_image; });
+    var files  = post.attachments.filter(function(a) { return !a.is_image; });
+  %>
+
+  <% if (images.length > 0) { %>
+    <div class="image-gallery">
+      <% images.forEach(function(img) { %>
+        <button class="gallery-thumb-btn" onclick="openLightbox('<%= img.file_url %>')"
+                aria-label="<%= img.filename %> vergrössern">
+          <img src="<%= img.thumb_url %>" alt="<%= img.filename %>" loading="lazy">
+        </button>
+      <% }); %>
+    </div>
+  <% } %>
+
+  <% if (files.length > 0) { %>
+    <ul class="file-list">
+      <% files.forEach(function(f) { %>
+        <li>
+          📎 <a href="<%= f.file_url %>" download="<%= f.filename %>"><%= f.filename %></a>
+          <span class="file-size">(<%= (f.size_bytes / 1024 / 1024).toFixed(1) %> MB)</span>
+        </li>
+      <% }); %>
+    </ul>
+  <% } %>
+</article>
