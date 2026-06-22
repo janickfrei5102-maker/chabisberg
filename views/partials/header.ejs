@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title + ' – Chabisberg' : 'Chabisberg' %></title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-brand">Chabisberg</a>
+  <% if (user) { %>
+    <span><%= user.username %></span>
+    <% if (user.role === 'admin') { %>
+      <a href="/admin">Admin</a>
+    <% } %>
+    <form action="/auth/logout" method="POST" style="display:inline">
+      <button type="submit">Logout</button>
+    </form>
+  <% } %>
+</nav>
+<main>

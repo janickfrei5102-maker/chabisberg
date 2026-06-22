@@ -1,0 +1,18 @@
+<%- include('../partials/header', { title: 'Login' }) %>
+
+<h1>Login</h1>
+<% if (error) { %>
+  <p class="error"><%= error %></p>
+<% } %>
+<form action="/auth/login" method="POST">
+  <label>Benutzername
+    <input type="text" name="username" required autofocus>
+  </label>
+  <label>Passwort
+    <input type="password" name="password" required>
+  </label>
+  <button type="submit">Anmelden</button>
+</form>
+<p><a href="/auth/register">Registrieren (mit Token)</a></p>
+
+<%- include('../partials/footer') %>
