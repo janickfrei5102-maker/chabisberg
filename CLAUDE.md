@@ -82,6 +82,7 @@ Abweichung vom Stack → in README begründen.
 - Pro Bewohner: **„Kontakt speichern"**-Button → `GET /addresses/:id/residents/:rid/vcard`.
 - vCard: RFC 2426 v3.0 (MIME `text/vcard`). Mobil öffnet Betriebssystem Kontakte-App direkt.
 - vCard-Inhalt: FN, N, TEL, ADR (Strassenadresse der Adresse), BDAY (nur wenn `showbirthday`), NOTE (claim).
+- Mini-Karte am Seitenende: Leaflet, zeigt nur diesen einen Marker, kein Popup, `scrollWheelZoom`/`doubleClickZoom`/`boxZoom`/`keyboard` deaktiviert. Nur wenn `lat`+`lng` vorhanden.
 - `requireAuth` auf allen `/addresses/*`-Routen — Kontaktdaten nie öffentlich.
 
 ### 4.2 Login
@@ -94,12 +95,15 @@ Abweichung vom Stack → in README begründen.
 - Posts moderieren/löschen.
 - Übersicht Uploads/Speichernutzung.
 
-### 4.4 News-Stream
-- Chronologisch, neueste zuerst.
-- Eingeloggt: posten mit Titel (optional), Rich-Text-Body, optional Hyperlink, beliebig viele Anhänge.
-- **Anhang max 90 MB** (ENV-steuerbar). Validieren, ablehnen wenn grösser.
-- Bild-Anhänge → Galerie/Thumbnail-Grid, Klick → Lightbox. Thumbnails serverseitig (`sharp`).
-- Anhänge auf Volume, NICHT in DB. DB hält nur Metadaten + Pfad.
+### 4.4 News-Stream (`/`, Landing Page)
+- Chronologisch, neueste zuerst. Paginiert (20/Seite).
+- Eingeloggt: posten mit Titel (optional), Rich-Text-Body (`white-space:pre-wrap`), optional Hyperlink, beliebig viele Anhänge.
+- **Anhang max 90 MB** (ENV `MAX_UPLOAD_SIZE_MB`). Serverseitig validieren, ablehnen wenn grösser.
+- MIME-Blockliste: HTML, JS, Shell-Skripte, Windows-EXE. UUID-Dateinamen, Extension sanitized.
+- Bild-Anhänge → Galerie/Thumbnail-Grid (sharp 400×300 JPEG), Klick → Lightbox. Nicht-Bilder → Download-Link.
+- Anhänge auf `UPLOAD_DIR/posts/`, Thumbnails auf `THUMBNAIL_DIR/posts/`. NICHT in DB (nur Metadaten + Pfad).
+- Post-Header: `Username · Adressname` — Adressname klickbar → `/addresses/:id`. Autoren ohne Adresse zeigen nur Username (LEFT JOIN).
+- Löschen: eigener Post oder Admin. Dateien werden mitgelöscht.
 
 ### 4.5 Eigene Adresse + Residents (`/profile`)
 - User verwalten ihre `addresses`: nur `display_name` änderbar, Rest (Koordinaten, Strasse) nur Admin.
