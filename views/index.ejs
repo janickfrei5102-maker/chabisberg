@@ -41,7 +41,7 @@
           var popup = buildPopup(addr);
           L.marker([addr.lat, addr.lng])
             .addTo(map)
-            .bindPopup(popup, { maxWidth: 280 });
+            .bindPopup(popup, { maxWidth: 340, minWidth: 260 });
         });
       })
       .catch(function (err) {
@@ -70,18 +70,23 @@
           var img = r.picture
             ? '<img src="/uploads/thumbs/' +
               esc(r.picture) +
-              '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px">'
-            : '<span style="font-size:1.2em;margin-right:6px">' + icon + '</span>';
+              '" style="width:40px;height:40px;border-radius:50%;object-fit:cover;flex-shrink:0">'
+            : '<span style="width:40px;height:40px;border-radius:50%;background:#e8f5e9;display:flex;align-items:center;justify-content:center;font-size:1.3em;flex-shrink:0">' +
+              icon +
+              '</span>';
           var claim = r.claim
-            ? ' <span style="color:#888;font-size:0.8em">— ' + esc(r.claim) + '</span>'
+            ? '<span style="color:#888;font-size:0.8em;display:block;line-height:1.2">' +
+              esc(r.claim) +
+              '</span>'
             : '';
           lines.push(
-            '<div style="margin:3px 0;display:flex;align-items:center">' +
+            '<div style="margin:5px 0;display:flex;align-items:center;gap:10px">' +
               img +
-              '<span>' +
+              '<div><span style="font-weight:500">' +
               esc(r.display_name) +
+              '</span>' +
               claim +
-              '</span></div>'
+              '</div></div>'
           );
         });
       }
