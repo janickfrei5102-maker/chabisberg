@@ -102,6 +102,7 @@ app.set('views', path.join(__dirname, '../views'));
 
 app.use('/auth', require('./routes/auth'));
 app.use('/admin', require('./routes/admin'));
+app.use('/api', require('./routes/api'));
 app.use('/', require('./routes/index'));
 
 app.use((_req, res) => {

@@ -1,13 +1,102 @@
 <%- include('partials/header', { title: 'Startseite' }) %>
 
-<h1>Willkommen im Chabisberg</h1>
 <section id="news">
   <h2>News</h2>
-  <p>News-Stream folgt.</p>
+  <p style="color:#999">News-Stream folgt.</p>
 </section>
+
 <section id="karte">
   <h2>Karte</h2>
-  <p>Karte folgt.</p>
+  <div id="map"></div>
 </section>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  (function () {
+    // Default center: Quartier Chabisberg
+    var CENTER = [47.510679, 8.219608];
+    var DEFAULT_ZOOM = 16;
+
+    var map = L.map('map').setView(CENTER, DEFAULT_ZOOM);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
+    }).addTo(map);
+
+    // Type → emoji for residents without a profile picture
+    var TYPE_ICON = { Erwachsener: '👤', Kind: '🧒', Katze: '🐱', Hund: '🐶' };
+
+    fetch('/api/addresses')
+      .then(function (r) {
+        if (!r.ok) throw new Error('API ' + r.status);
+        return r.json();
+      })
+      .then(function (addresses) {
+        addresses.forEach(function (addr) {
+          if (addr.lat == null || addr.lng == null) return;
+
+          var popup = buildPopup(addr);
+          L.marker([addr.lat, addr.lng])
+            .addTo(map)
+            .bindPopup(popup, { maxWidth: 280 });
+        });
+      })
+      .catch(function (err) {
+        console.error('Karte: Adressen konnten nicht geladen werden', err);
+      });
+
+    function buildPopup(addr) {
+      var lines = [];
+
+      // Header: display name + full address
+      var name = addr.display_name || (addr.street + ' ' + addr.house_number);
+      lines.push('<strong>' + esc(name) + '</strong>');
+      lines.push(
+        '<span style="color:#666;font-size:0.85em">' +
+          esc(addr.street + ' ' + addr.house_number) +
+          ', ' +
+          esc(addr.postal_code + ' ' + addr.city) +
+          '</span>'
+      );
+
+      // Residents list
+      if (addr.residents && addr.residents.length > 0) {
+        lines.push('<hr style="margin:6px 0">');
+        addr.residents.forEach(function (r) {
+          var icon = TYPE_ICON[r.type] || '👤';
+          var img = r.picture
+            ? '<img src="/uploads/thumbs/' +
+              esc(r.picture) +
+              '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:6px">'
+            : '<span style="font-size:1.2em;margin-right:6px">' + icon + '</span>';
+          var claim = r.claim
+            ? ' <span style="color:#888;font-size:0.8em">— ' + esc(r.claim) + '</span>'
+            : '';
+          lines.push(
+            '<div style="margin:3px 0;display:flex;align-items:center">' +
+              img +
+              '<span>' +
+              esc(r.display_name) +
+              claim +
+              '</span></div>'
+          );
+        });
+      }
+
+      return lines.join('');
+    }
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+  })();
+</script>
 
 <%- include('partials/footer') %>

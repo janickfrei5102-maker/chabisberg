@@ -210,4 +210,22 @@ function requireCanLinkUser(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, requireAdmin, requireOwnsAddress, requireCanLinkUser };
+/**
+ * API variant of requireAuth: returns 401 JSON instead of redirecting.
+ * Used on JSON API endpoints where an HTML redirect makes no sense.
+ * The Fetch API (and other JSON clients) cannot follow HTML redirects.
+ */
+function requireAuthJson(req, res, next) {
+  if (!req.session.user) {
+    return res.status(401).json({ error: 'Nicht eingeloggt' });
+  }
+  next();
+}
+
+module.exports = {
+  requireAuth,
+  requireAdmin,
+  requireOwnsAddress,
+  requireCanLinkUser,
+  requireAuthJson,
+};

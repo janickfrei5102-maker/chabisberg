@@ -10,31 +10,31 @@ exports.seed = async function (knex) {
   const [addr1] = await knex('addresses').insert({
     street: 'Bergstrasse',
     house_number: '12',
-    postal_code: '8001',
-    city: 'Zürich',
+    postal_code: '8400',
+    city: 'Winterthur',
     display_name: 'Familie Müller',
-    lat: 47.3782,
-    lng: 8.543,
+    lat: 47.5112,
+    lng: 8.2194,
   });
 
   const [addr2] = await knex('addresses').insert({
     street: 'Seestrasse',
     house_number: '47',
-    postal_code: '8002',
-    city: 'Zürich',
+    postal_code: '8400',
+    city: 'Winterthur',
     display_name: 'Familie Schmid',
-    lat: 47.3651,
-    lng: 8.5392,
+    lat: 47.5101,
+    lng: 8.2208,
   });
 
   const [addr3] = await knex('addresses').insert({
     street: 'Dorfgasse',
     house_number: '3',
-    postal_code: '8001',
-    city: 'Zürich',
+    postal_code: '8400',
+    city: 'Winterthur',
     display_name: 'Meier / Keller',
-    lat: 47.371,
-    lng: 8.548,
+    lat: 47.5098,
+    lng: 8.2185,
   });
 
   // --- Residents ---
