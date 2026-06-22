@@ -424,6 +424,11 @@ input[type='checkbox'] {
   white-space: pre-wrap;
   word-break: break-word;
 }
+.post-address-link {
+  color: #2c5f2e;
+  font-size: 0.88rem;
+  font-weight: normal;
+}
 .post-link {
   margin: 0.5rem 0 0;
   font-size: 0.88rem;
