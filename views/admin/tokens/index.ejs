@@ -1,0 +1,53 @@
+<%- include('../../partials/header', { title: 'Registrierungs-Tokens' }) %>
+
+<div class="admin-breadcrumb"><a href="/admin">Admin</a> › Tokens</div>
+<h1>Registrierungs-Tokens</h1>
+
+<% if (message) { %><p class="flash"><%= message %></p><% } %>
+
+<form action="/admin/tokens" method="POST" style="margin-bottom:1.5rem">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+  <button type="submit" class="btn">+ Token generieren</button>
+</form>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Token</th>
+      <th>Status</th>
+      <th>Erstellt</th>
+      <th>Verwendet von</th>
+      <th>Aktionen</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% tokens.forEach(function(t) { %>
+    <tr class="<%= t.used ? 'row-muted' : '' %>">
+      <td><code class="token-code"><%= t.token %></code></td>
+      <td>
+        <% if (t.used) { %>
+          <span class="badge badge-used">Verwendet</span>
+        <% } else { %>
+          <span class="badge badge-unused">Offen</span>
+        <% } %>
+      </td>
+      <td><%= new Date(t.created_at).toLocaleDateString('de-CH') %></td>
+      <td><%= t.used_by_user_id ? 'User #' + t.used_by_user_id : '—' %></td>
+      <td class="actions">
+        <% if (!t.used) { %>
+        <form action="/admin/tokens/<%= t.id %>/delete" method="POST" style="display:inline"
+              onsubmit="return confirm('Token löschen?')">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn-danger">Löschen</button>
+        </form>
+        <% } %>
+      </td>
+    </tr>
+    <% }) %>
+    <% if (!tokens.length) { %>
+    <tr><td colspan="5" style="text-align:center;color:#999">Keine Tokens vorhanden</td></tr>
+    <% } %>
+  </tbody>
+</table>
+
+<%- include('../../partials/footer') %>

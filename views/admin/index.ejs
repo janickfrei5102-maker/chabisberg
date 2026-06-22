@@ -1,12 +1,40 @@
 <%- include('../partials/header', { title: 'Admin' }) %>
 
 <h1>Admin-Konsole</h1>
-<ul>
-  <li><a href="/admin/addresses">Adressen</a></li>
-  <li><a href="/admin/users">Benutzer</a></li>
-  <li><a href="/admin/tokens">Tokens</a></li>
-  <li><a href="/admin/posts">Posts</a></li>
-  <li><a href="/admin/uploads">Uploads</a></li>
-</ul>
+
+<div class="admin-stats">
+  <div class="stat-card">
+    <div class="stat-number"><%= addressCount %></div>
+    <div class="stat-label">Adressen</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number"><%= userCount %></div>
+    <div class="stat-label">Benutzer</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number"><%= unusedTokenCount %></div>
+    <div class="stat-label">Offene Tokens</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number"><%= postCount %></div>
+    <div class="stat-label">Posts</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number"><%= storageStats.count %></div>
+    <div class="stat-label">Anhänge</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-number"><%= (storageStats.total_bytes / 1024 / 1024).toFixed(1) %> MB</div>
+    <div class="stat-label">Speicher</div>
+  </div>
+</div>
+
+<nav class="admin-nav">
+  <a href="/admin/addresses">Adressen</a>
+  <a href="/admin/users">Benutzer</a>
+  <a href="/admin/tokens">Tokens</a>
+  <a href="/admin/posts">Posts</a>
+  <a href="/admin/uploads">Uploads</a>
+</nav>
 
 <%- include('../partials/footer') %>

@@ -1,0 +1,46 @@
+<%- include('../../partials/header', { title: 'Posts moderieren' }) %>
+
+<div class="admin-breadcrumb"><a href="/admin">Admin</a> › Posts</div>
+<h1>Posts <small style="font-weight:normal;font-size:1rem;color:#666">(<%= total %> total)</small></h1>
+
+<% if (message) { %><p class="flash"><%= message %></p><% } %>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Titel</th>
+      <th>Autor</th>
+      <th>Erstellt</th>
+      <th>Aktionen</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% posts.forEach(function(p) { %>
+    <tr>
+      <td><%= p.title || '<em style="color:#999">kein Titel</em>' %></td>
+      <td><%= p.author_username %></td>
+      <td><%= new Date(p.created_at).toLocaleDateString('de-CH') %></td>
+      <td class="actions">
+        <form action="/admin/posts/<%= p.id %>/delete" method="POST" style="display:inline"
+              onsubmit="return confirm('Post und alle Anhänge löschen?')">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn-danger">Löschen</button>
+        </form>
+      </td>
+    </tr>
+    <% }) %>
+    <% if (!posts.length) { %>
+    <tr><td colspan="4" style="text-align:center;color:#999">Keine Posts vorhanden</td></tr>
+    <% } %>
+  </tbody>
+</table>
+
+<% if (pages > 1) { %>
+<div class="pagination">
+  <% for (var i = 1; i <= pages; i++) { %>
+    <a href="/admin/posts?page=<%= i %>" class="<%= i === page ? 'active' : '' %>"><%= i %></a>
+  <% } %>
+</div>
+<% } %>
+
+<%- include('../../partials/footer') %>

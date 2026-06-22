@@ -1,0 +1,47 @@
+<%- include('../../partials/header', { title: user ? 'Benutzer bearbeiten' : 'Neuer Benutzer' }) %>
+
+<div class="admin-breadcrumb"><a href="/admin">Admin</a> › <a href="/admin/users">Benutzer</a> › <%= user ? 'Bearbeiten' : 'Neu' %></div>
+<h1><%= user ? 'Benutzer bearbeiten' : 'Neuer Benutzer' %></h1>
+
+<% if (error) { %><p class="error"><%= error %></p><% } %>
+
+<form action="<%= user ? '/admin/users/' + user.id : '/admin/users' %>" method="POST">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+  <label>
+    Username
+    <input type="text" name="username" value="<%= user ? user.username : '' %>" required autocomplete="off">
+  </label>
+
+  <label>
+    Passwort <% if (user) { %><small>(leer lassen = unverändert)</small><% } %>
+    <input type="password" name="password" autocomplete="new-password" <% if (!user) { %>required minlength="8"<% } %>>
+  </label>
+
+  <label>
+    Rolle
+    <select name="role">
+      <option value="resident" <%= (!user || user.role === 'resident') ? 'selected' : '' %>>Resident</option>
+      <option value="admin" <%= (user && user.role === 'admin') ? 'selected' : '' %>>Admin</option>
+    </select>
+  </label>
+
+  <label>
+    Adresse
+    <select name="address_id">
+      <option value="">— keine —</option>
+      <% addresses.forEach(function(a) { %>
+      <option value="<%= a.id %>" <%= (user && user.address_id == a.id) ? 'selected' : '' %>>
+        <%= a.display_name || (a.street + ' ' + a.house_number) %>
+      </option>
+      <% }) %>
+    </select>
+  </label>
+
+  <div style="margin-top:1rem">
+    <button type="submit">Speichern</button>
+    <a href="/admin/users" style="margin-left:1rem">Abbrechen</a>
+  </div>
+</form>
+
+<%- include('../../partials/footer') %>

@@ -1,0 +1,104 @@
+<%- include('../../partials/header', { title: address ? 'Adresse bearbeiten' : 'Neue Adresse' }) %>
+
+<div class="admin-breadcrumb"><a href="/admin">Admin</a> › <a href="/admin/addresses">Adressen</a> › <%= address ? 'Bearbeiten' : 'Neu' %></div>
+<h1><%= address ? 'Adresse bearbeiten' : 'Neue Adresse' %></h1>
+
+<% if (error) { %><p class="error"><%= error %></p><% } %>
+
+<form action="<%= address ? '/admin/addresses/' + address.id : '/admin/addresses' %>" method="POST">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+  <label>
+    Anzeigename (z.B. "Familie Müller")
+    <input type="text" name="display_name" value="<%= address ? (address.display_name || '') : '' %>">
+  </label>
+
+  <div class="form-row">
+    <label style="flex:2">
+      Strasse
+      <input type="text" name="street" value="<%= address ? (address.street || '') : '' %>" required>
+    </label>
+    <label style="flex:1">
+      Hausnummer
+      <input type="text" name="house_number" value="<%= address ? (address.house_number || '') : '' %>" required>
+    </label>
+  </div>
+
+  <div class="form-row">
+    <label style="flex:1">
+      PLZ
+      <input type="text" name="postal_code" value="<%= address ? (address.postal_code || '') : '' %>">
+    </label>
+    <label style="flex:2">
+      Ort
+      <input type="text" name="city" value="<%= address ? (address.city || '') : '' %>" required>
+    </label>
+  </div>
+
+  <fieldset>
+    <legend>Koordinaten (Klick auf Karte setzt Pin)</legend>
+    <div class="form-row">
+      <label style="flex:1">
+        Breitengrad (lat)
+        <input type="text" name="lat" id="lat" value="<%= address ? (address.lat || '') : '' %>">
+      </label>
+      <label style="flex:1">
+        Längengrad (lng)
+        <input type="text" name="lng" id="lng" value="<%= address ? (address.lng || '') : '' %>">
+      </label>
+    </div>
+    <div id="coord-map"></div>
+  </fieldset>
+
+  <div style="margin-top:1rem">
+    <button type="submit">Speichern</button>
+    <a href="/admin/addresses" style="margin-left:1rem">Abbrechen</a>
+  </div>
+</form>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  (function () {
+    var initLat = parseFloat(document.getElementById('lat').value) || 47.37;
+    var initLng = parseFloat(document.getElementById('lng').value) || 8.54;
+    var hasCoords = document.getElementById('lat').value !== '';
+    var zoom = hasCoords ? 16 : 13;
+
+    var map = L.map('coord-map').setView([initLat, initLng], zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19,
+    }).addTo(map);
+
+    var marker = null;
+    if (hasCoords) {
+      marker = L.marker([initLat, initLng], { draggable: true }).addTo(map);
+      attachDrag(marker);
+    }
+
+    map.on('click', function (e) {
+      setCoords(e.latlng.lat, e.latlng.lng);
+      if (marker) {
+        marker.setLatLng(e.latlng);
+      } else {
+        marker = L.marker(e.latlng, { draggable: true }).addTo(map);
+        attachDrag(marker);
+      }
+    });
+
+    function attachDrag(m) {
+      m.on('dragend', function (ev) {
+        var p = ev.target.getLatLng();
+        setCoords(p.lat, p.lng);
+      });
+    }
+
+    function setCoords(lat, lng) {
+      document.getElementById('lat').value = lat.toFixed(6);
+      document.getElementById('lng').value = lng.toFixed(6);
+    }
+  })();
+</script>
+
+<%- include('../../partials/footer') %>

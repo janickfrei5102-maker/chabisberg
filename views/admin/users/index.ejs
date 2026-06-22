@@ -1,0 +1,43 @@
+<%- include('../../partials/header', { title: 'Benutzer' }) %>
+
+<div class="admin-breadcrumb"><a href="/admin">Admin</a> › Benutzer</div>
+<h1>Benutzer</h1>
+
+<% if (message) { %><p class="flash"><%= message %></p><% } %>
+
+<a href="/admin/users/new" class="btn">+ Neuer Benutzer</a>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Username</th>
+      <th>Rolle</th>
+      <th>Adresse</th>
+      <th>Erstellt</th>
+      <th>Aktionen</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% users.forEach(function(u) { %>
+    <tr>
+      <td><strong><%= u.username %></strong></td>
+      <td><span class="badge badge-<%= u.role %>"><%= u.role %></span></td>
+      <td><%= u.address_id ? (addressMap[u.address_id] || '(ID ' + u.address_id + ')') : '—' %></td>
+      <td><%= new Date(u.created_at).toLocaleDateString('de-CH') %></td>
+      <td class="actions">
+        <a href="/admin/users/<%= u.id %>/edit">Bearbeiten</a>
+        <form action="/admin/users/<%= u.id %>/delete" method="POST" style="display:inline"
+              onsubmit="return confirm('Benutzer löschen?')">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn-danger">Löschen</button>
+        </form>
+      </td>
+    </tr>
+    <% }) %>
+    <% if (!users.length) { %>
+    <tr><td colspan="5" style="text-align:center;color:#999">Keine Benutzer vorhanden</td></tr>
+    <% } %>
+  </tbody>
+</table>
+
+<%- include('../../partials/footer') %>

@@ -1,0 +1,47 @@
+<%- include('../../partials/header', { title: 'Adressen' }) %>
+
+<div class="admin-breadcrumb"><a href="/admin">Admin</a> › Adressen</div>
+<h1>Adressen</h1>
+
+<% if (message) { %><p class="flash"><%= message %></p><% } %>
+
+<a href="/admin/addresses/new" class="btn">+ Neue Adresse</a>
+
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>Anzeigename</th>
+      <th>Adresse</th>
+      <th>PLZ / Ort</th>
+      <th>Koordinaten</th>
+      <th>Aktionen</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% addresses.forEach(function(a) { %>
+    <tr>
+      <td><%= a.display_name || '—' %></td>
+      <td><%= a.street %> <%= a.house_number %></td>
+      <td><%= a.postal_code %> <%= a.city %></td>
+      <td>
+        <% if (a.lat && a.lng) { %>
+          <%= parseFloat(a.lat).toFixed(4) %>, <%= parseFloat(a.lng).toFixed(4) %>
+        <% } else { %>—<% } %>
+      </td>
+      <td class="actions">
+        <a href="/admin/addresses/<%= a.id %>/edit">Bearbeiten</a>
+        <form action="/admin/addresses/<%= a.id %>/delete" method="POST" style="display:inline"
+              onsubmit="return confirm('Adresse löschen?')">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn-danger">Löschen</button>
+        </form>
+      </td>
+    </tr>
+    <% }) %>
+    <% if (!addresses.length) { %>
+    <tr><td colspan="5" style="text-align:center;color:#999">Keine Adressen vorhanden</td></tr>
+    <% } %>
+  </tbody>
+</table>
+
+<%- include('../../partials/footer') %>
