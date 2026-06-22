@@ -102,10 +102,26 @@ const { generateToken, doubleCsrfProtection } = doubleCsrf({
 
   /**
    * Where to read the CSRF token from incoming POST/PUT/DELETE requests.
-   * Forms submit it as `_csrf` in the URL-encoded body.
-   * AJAX callers can also send it as the `x-csrf-token` header.
+   *
+   * Three sources checked in order:
+   *   1. req.body._csrf       — standard URL-encoded and JSON forms
+   *   2. x-csrf-token header  — AJAX/fetch callers
+   *   3. req.query._csrf      — multipart/form-data forms (file uploads)
+   *
+   * Why req.query for multipart:
+   *   csrfProtection runs as global middleware BEFORE route-level multer.
+   *   For multipart/form-data, req.body is not populated until multer parses
+   *   the request — so req.body._csrf is always undefined at CSRF check time.
+   *   Passing the token as a query parameter on the form action URL
+   *   (e.g., action="/profile/residents?_csrf=TOKEN") makes it available in
+   *   req.query, which Express populates from the URL immediately.
+   *
+   *   Security: CSRF tokens do not need to be secret — they only need to match
+   *   the signed CSRF cookie. Putting the token in the query string does not
+   *   reduce security in the double-submit cookie scheme. The token value is
+   *   meaningless without the matching signed cookie.
    */
-  getTokenFromRequest: (req) => req.body?._csrf || req.headers['x-csrf-token'],
+  getTokenFromRequest: (req) => req.body?._csrf || req.headers['x-csrf-token'] || req.query?._csrf,
 });
 
 /**

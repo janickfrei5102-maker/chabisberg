@@ -3,9 +3,8 @@
 <h1><%= resident ? 'Bewohner bearbeiten' : 'Neuer Bewohner' %></h1>
 <% if (error) { %><p class="error"><%= error %></p><% } %>
 
-<form action="<%= resident ? '/profile/residents/' + resident.id : '/profile/residents' %>"
+<form action="<%= resident ? '/profile/residents/' + resident.id : '/profile/residents' %>?_csrf=<%= encodeURIComponent(csrfToken) %>"
       method="POST" enctype="multipart/form-data" style="max-width:480px">
-  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
   <label>
     Name <span style="color:#c00">*</span>
