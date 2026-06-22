@@ -6,6 +6,9 @@ FROM node:20-slim AS deps
 
 WORKDIR /app
 
+# Build tools for better-sqlite3 + sharp native compilation (node-gyp fallback)
+RUN apt-get update && apt-get install -y python3 make g++ && rm -rf /var/lib/apt/lists/*
+
 # Copy manifests first so this layer is cached unless deps change
 COPY package.json package-lock.json ./
 
