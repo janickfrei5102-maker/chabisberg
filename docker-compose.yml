@@ -1,0 +1,64 @@
+services:
+  chabisberg:
+    build: .
+    container_name: chabisberg
+    restart: unless-stopped
+
+    environment:
+      NODE_ENV: production
+      PORT: ${PORT:-3000}
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set}
+      DATABASE_PATH: /data/db/chabisberg.sqlite
+      UPLOAD_DIR: /data/uploads
+      THUMBNAIL_DIR: /data/thumbnails
+      MAX_UPLOAD_SIZE_MB: ${MAX_UPLOAD_SIZE_MB:-90}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD must be set}
+      # Trust the Cloudflare Tunnel reverse proxy for HTTPS detection and
+      # client IP extraction. Set to "false" for local dev without a proxy.
+      TRUST_PROXY: "true"
+
+    volumes:
+      # SQLite database
+      - ${DATA_DB_PATH:-./data/db}:/data/db
+      # Original uploaded files (post attachments, resident pictures)
+      - ${DATA_UPLOADS_PATH:-./data/uploads}:/data/uploads
+      # Sharp-generated thumbnails
+      - ${DATA_THUMBNAILS_PATH:-./data/thumbnails}:/data/thumbnails
+
+    ports:
+      # Only bind to localhost — Cloudflare Tunnel reaches the container
+      # by container name ("chabisberg") on the internal Docker network.
+      # Expose on host only for local dev / direct access.
+      - "${HOST_PORT:-127.0.0.1:3000}:${PORT:-3000}"
+
+    networks:
+      - chabisberg-net
+
+  # ── Cloudflare Tunnel ────────────────────────────────────────────────────────
+  # Connects your domain to the internal chabisberg service without opening
+  # any inbound firewall ports.
+  #
+  # Setup (one-time):
+  #   1. Create a tunnel in the Cloudflare Zero Trust dashboard.
+  #   2. Copy the tunnel token (Settings → Tunnels → your tunnel → Token).
+  #   3. Set CLOUDFLARE_TUNNEL_TOKEN in your .env file.
+  #   4. In the dashboard: Public Hostname → Service = http://chabisberg:3000
+  #
+  # The tunnel container connects outbound to Cloudflare and proxies traffic
+  # to the chabisberg container via the internal Docker network.
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: chabisberg-tunnel
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:?CLOUDFLARE_TUNNEL_TOKEN must be set}
+    networks:
+      - chabisberg-net
+    depends_on:
+      - chabisberg
+
+networks:
+  chabisberg-net:
+    driver: bridge

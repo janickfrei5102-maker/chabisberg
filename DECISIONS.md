@@ -41,3 +41,30 @@ Seed ist idempotent (prüft ob Admin existiert). Credentials via ENV: `ADMIN_USE
 ## Test-Strategie (Scaffold)
 
 Smoke-Tests mit Supertest gegen echten Express-App-Layer. Kein DB-Mocking — Autorisierungslogik wird in Schritt 2 gegen echte SQLite-Test-DB getestet.
+
+## Docker: Multi-Stage Build
+
+**Wahl:** `deps`-Stage (`npm ci --omit=dev`) + `runtime`-Stage (nur Production-Artefakte).
+**Grund:** Dev-Dependencies (jest, eslint, prettier, nodemon, supertest) nicht im Produktions-Image. Kleineres Image, reduzierte Angriffsfläche.
+
+## Docker: Nicht-Root-User
+
+App läuft als `chabisberg`-User. Daten-Verzeichnisse `/data/*` gehören diesem User.
+**Grund:** Principle of Least Privilege — falls Node-Prozess kompromittiert wird, kein Root-Zugriff auf den Host.
+
+## Docker: Migrations + Seed beim Container-Start
+
+`CMD` führt `knex migrate:latest && knex seed:run && node src/server.js` aus.
+**Grund:** Beide Befehle sind idempotent. Kein manueller Schritt nach Update nötig.
+
+## Cloudflare Tunnel statt Port-Forwarding
+
+**Wahl:** `cloudflared` als Service in docker-compose, kein Inbound-Port am Router.
+**Grund:** Kein offener Port im Heimnetz. Cloudflare terminiert TLS. Free-Plan ausreichend.
+**Limit:** Cloudflare Free ~100 MB pro Request → `MAX_UPLOAD_SIZE_MB=90` als App-Cap mit Puffer.
+
+## HOST_PORT: localhost-only Binding (Standard)
+
+Standard `HOST_PORT=127.0.0.1:3000` — App nur lokal auf dem Unraid-Host erreichbar.
+Cloudflare Tunnel erreicht Container über internes Docker-Netzwerk (`http://chabisberg:3000`).
+**Grund:** Kein versehentlicher Direktzugriff am Tunnel vorbei.
