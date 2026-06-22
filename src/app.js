@@ -20,8 +20,12 @@ app.use(
     contentSecurityPolicy: {
       directives: {
         defaultSrc: ["'self'"],
-        // 'unsafe-inline' needed for inline Leaflet map init scripts
+        // 'unsafe-inline' needed for inline Leaflet map init scripts and inline event handlers
         scriptSrc: ["'self'", "'unsafe-inline'", 'https://unpkg.com'],
+        // Helmet 7 defaults to script-src-attr 'none' which blocks onclick= attributes.
+        // We use inline handlers in EJS templates (gallery, lightbox, resident form, admin map).
+        // 'unsafe-inline' here mirrors what we already allow in scriptSrc.
+        scriptSrcAttr: ["'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://unpkg.com'],
         // OSM tile images fetched as <img> elements by Leaflet
         imgSrc: ["'self'", 'data:', 'https://*.tile.openstreetmap.org', 'https://unpkg.com'],
