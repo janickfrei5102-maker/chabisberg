@@ -8,7 +8,6 @@
 
 ## 0. Arbeitsweise (PFLICHT — zuerst lesen)
 
-- Caveman-Modus aktiv: kurze, fragmentarische Prosa. Code/Befehle/Pfade bleiben exakt und vollständig. **Ausnahme:** Autorisierungs- und Security-Logik immer ausführlich kommentieren, nie verkürzen.
 - Arbeite autonom. Rückfrage NUR bei blockierender Unklarheit. Sonst sinnvolle Defaults treffen und in `DECISIONS.md` notieren.
 - Nach jedem sinnvollen Schritt: `npm run lint && npm test`, dann `git commit`. Bei rotem Test/Lint: selbst fixen, nicht fragen.
 - Niemals `git push`, kein Deploy auf Unraid, keine echten Secrets. Das macht der User.
@@ -74,8 +73,16 @@ Abweichung vom Stack → in README begründen.
 ### 4.1 Karte
 - Leaflet, auf Quartier zentriert, sinnvoller Default-Zoom.
 - Marker je Adresse mit lat/lng.
-- Popup: `display_name`, volle Adresse, Liste der `residents` (mit Bild/claim).
+- Popup: `display_name`, volle Adresse, Liste der `residents` (Bild, claim, Geburtstag wenn `showbirthday=true`).
+- Popup-Footer: Link → Adress-Detail-View (`/addresses/:id`).
 - Daten via `GET /api/addresses` — nur eingeloggt.
+
+### 4.1a Adress-Detail-View (`/addresses/:id`, nur eingeloggt)
+- Vollständige Bewohner-Karte: Foto, Name, Typ, Kurzbeschreibung, Geburtstag (mit Alter), Telefon.
+- Pro Bewohner: **„Kontakt speichern"**-Button → `GET /addresses/:id/residents/:rid/vcard`.
+- vCard: RFC 2426 v3.0 (MIME `text/vcard`). Mobil öffnet Betriebssystem Kontakte-App direkt.
+- vCard-Inhalt: FN, N, TEL, ADR (Strassenadresse der Adresse), BDAY (nur wenn `showbirthday`), NOTE (claim).
+- `requireAuth` auf allen `/addresses/*`-Routen — Kontaktdaten nie öffentlich.
 
 ### 4.2 Login
 - Username/Passwort. Session-Cookie. "Eingeloggt bleiben" optional. Logout.
@@ -94,9 +101,13 @@ Abweichung vom Stack → in README begründen.
 - Bild-Anhänge → Galerie/Thumbnail-Grid, Klick → Lightbox. Thumbnails serverseitig (`sharp`).
 - Anhänge auf Volume, NICHT in DB. DB hält nur Metadaten + Pfad.
 
-### 4.5 Eigene Adresse + Residents
-- User verwalten ihre `addresses`: nur `display_name` änderbar, Rest nicht.
-- User verwalten `residents` ihrer Adresse: anlegen/bearbeiten/löschen.
+### 4.5 Eigene Adresse + Residents (`/profile`)
+- User verwalten ihre `addresses`: nur `display_name` änderbar, Rest (Koordinaten, Strasse) nur Admin.
+- User verwalten `residents` ihrer Adresse: anlegen/bearbeiten/löschen (Name, Telefon, Foto, claim, Typ, Geburtstag, showbirthday).
+- Foto-Upload: multer → UUID-Dateiname → sharp 150×150 JPEG Thumbnail → `/thumbs/residents/`.
+- `address_id` bei Resident-Create immer aus Session, nie aus Body (injection-sicher).
+- `showbirthday` für Katze/Hund immer `false` — Route + DB-Layer erzwingen (belt-and-suspenders).
+- Session-`address_id` kann stale sein wenn Admin Zuweisung ändert → `GET /profile` holt live-Wert aus DB + refresht Session.
 
 ---
 
