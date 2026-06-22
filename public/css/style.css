@@ -330,6 +330,44 @@ input[type='checkbox'] {
   margin-right: 0.4rem;
 }
 
+/* Address detail page */
+.address-detail-header {
+  margin-bottom: 1.5rem;
+}
+.address-detail-header h1 {
+  margin: 0.5rem 0 0.25rem;
+}
+.address-detail-sub {
+  color: #666;
+  margin: 0;
+  font-size: 0.95rem;
+}
+.resident-card-detail {
+  min-width: 280px;
+  max-width: 420px;
+}
+.resident-birthday {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0.25rem 0 0;
+}
+.btn-vcard {
+  display: inline-block;
+  padding: 0.3rem 0.85rem;
+  background: #e8f5e9;
+  color: #2c5f2e;
+  border: 1px solid #c8e6c9;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+.btn-vcard:hover {
+  background: #2c5f2e;
+  color: #fff;
+  border-color: #2c5f2e;
+}
+
 #coord-map {
   height: 300px;
   border-radius: 4px;

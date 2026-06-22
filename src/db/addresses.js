@@ -20,7 +20,17 @@ module.exports = function createAddressRepo(db) {
         .orderBy('display_name');
 
       const residents = await db('residents')
-        .select('id', 'address_id', 'display_name', 'claim', 'picture', 'type')
+        .select(
+          'id',
+          'address_id',
+          'display_name',
+          'claim',
+          'picture',
+          'type',
+          'birthday',
+          'showbirthday',
+          'phone'
+        )
         .orderBy('display_name');
 
       const byAddress = {};
@@ -30,6 +40,16 @@ module.exports = function createAddressRepo(db) {
       }
 
       return addresses.map((a) => ({ ...a, residents: byAddress[a.id] || [] }));
+    },
+
+    async findByIdWithResidents(id) {
+      const address = await db('addresses').where({ id }).first();
+      if (!address) return null;
+      const residentList = await db('residents')
+        .where({ address_id: id })
+        .select('*')
+        .orderBy('display_name');
+      return { ...address, residents: residentList };
     },
 
     async create(data) {

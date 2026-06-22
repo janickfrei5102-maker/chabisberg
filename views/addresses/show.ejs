@@ -1,0 +1,72 @@
+<%- include('../partials/header', { title: address.display_name || address.street + ' ' + address.house_number }) %>
+
+<a href="/" style="font-size:0.85rem;color:#2c5f2e;text-decoration:none">← Zurück zur Karte</a>
+
+<div class="address-detail">
+  <div class="address-detail-header">
+    <h1><%= address.display_name || (address.street + ' ' + address.house_number) %></h1>
+    <p class="address-detail-sub">
+      <%= address.street %> <%= address.house_number %>,
+      <%= address.postal_code %> <%= address.city %>
+    </p>
+  </div>
+
+  <% if (address.residents && address.residents.length > 0) { %>
+    <h2 style="margin-top:2rem">Bewohner</h2>
+    <div class="residents-grid">
+      <% address.residents.forEach(function(r) { %>
+        <div class="resident-card resident-card-detail">
+
+          <div class="resident-avatar">
+            <% if (r.picture) { %>
+              <img src="/thumbs/residents/<%= r.picture %>" alt="<%= r.display_name %>">
+            <% } else { %>
+              <div class="avatar-placeholder">
+                <% var icons = { Erwachsener: '👤', Kind: '🧒', Katze: '🐱', Hund: '🐶' }; %>
+                <%= icons[r.type] || '👤' %>
+              </div>
+            <% } %>
+          </div>
+
+          <div class="resident-info" style="flex:1">
+            <strong><%= r.display_name %></strong>
+            <span class="resident-type"><%= r.type %></span>
+
+            <% if (r.claim) { %>
+              <p class="resident-claim"><%= r.claim %></p>
+            <% } %>
+
+            <% if (r.showbirthday && r.birthday) { %>
+              <%
+                var bd = new Date(r.birthday);
+                var today = new Date();
+                var age = today.getFullYear() - bd.getFullYear() -
+                  (today < new Date(today.getFullYear(), bd.getMonth(), bd.getDate()) ? 1 : 0);
+                var bdFormatted = bd.toLocaleDateString('de-CH', { day: 'numeric', month: 'long', year: 'numeric' });
+              %>
+              <p class="resident-birthday">🎂 <%= bdFormatted %> (<%= age %> J.)</p>
+            <% } %>
+
+            <% if (r.phone) { %>
+              <p class="resident-phone">
+                📞 <a href="tel:<%= r.phone %>"><%= r.phone %></a>
+              </p>
+            <% } %>
+
+            <div style="margin-top:0.75rem">
+              <a href="/addresses/<%= address.id %>/residents/<%= r.id %>/vcard"
+                 class="btn btn-vcard"
+                 title="Kontakt speichern">
+                ⬇ Kontakt speichern
+              </a>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+  <% } else { %>
+    <p style="color:#999;margin-top:2rem">Keine Bewohner eingetragen.</p>
+  <% } %>
+</div>
+
+<%- include('../partials/footer') %>
