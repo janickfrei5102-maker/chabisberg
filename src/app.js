@@ -3,10 +3,12 @@ const session = require('express-session');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
+const { csrfProtection, attachCsrfToken } = require('./middleware/csrf');
 
 const app = express();
 
-// Trust Cloudflare Tunnel reverse proxy — required for secure cookies behind HTTPS terminator
+// Trust Cloudflare Tunnel reverse proxy — required for secure cookies and
+// correct client-IP extraction (used by rate limiter) behind HTTPS terminator
 if (process.env.TRUST_PROXY === 'true') {
   app.set('trust proxy', true);
 }
@@ -36,7 +38,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
-// Session store: SQLite in production/dev, MemoryStore in test
+// Session store: SQLite in production/dev, MemoryStore (express-session built-in) in test
 let sessionStore;
 if (process.env.NODE_ENV !== 'test') {
   const SQLiteStore = require('connect-sqlite3')(session);
@@ -54,13 +56,30 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      // Secure cookies only when behind HTTPS proxy (Cloudflare Tunnel)
+      // Secure=true only behind HTTPS proxy. Without `trust proxy`, Express
+      // sees the tunnel's plain HTTP and would never set Secure cookies.
       secure: process.env.TRUST_PROXY === 'true',
       sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+      // No default maxAge — session cookie (expires on browser close).
+      // POST /auth/login sets maxAge=30 days when "Eingeloggt bleiben" is checked.
     },
   })
 );
+
+/**
+ * CSRF protection: validates token on POST/PUT/DELETE/PATCH.
+ * Must come AFTER session middleware (session can be used as token store).
+ * Must come BEFORE routes that process forms.
+ * In test mode this is a no-op (see src/middleware/csrf.js).
+ */
+app.use(csrfProtection);
+
+/**
+ * Generate CSRF token and make it available as res.locals.csrfToken.
+ * EJS forms include: <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+ * Must come after csrfProtection so the token is generated with the same config.
+ */
+app.use(attachCsrfToken);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../views'));
@@ -79,12 +98,14 @@ app.use((_req, res) => {
   res.status(404).render('error', { message: 'Nicht gefunden', status: 404 });
 });
 
-// Express error handler signature requires 4 params — _next intentionally unused
+// Express error handler — 4-param signature required, _next intentionally unused
 app.use((err, _req, res, _next) => {
   console.error(err.stack);
-  res.status(err.status || 500).render('error', {
+  // Handle both err.status (Express convention) and err.statusCode (some libraries)
+  const status = err.status || err.statusCode || 500;
+  res.status(status).render('error', {
     message: process.env.NODE_ENV === 'production' ? 'Interner Serverfehler' : err.message,
-    status: err.status || 500,
+    status,
   });
 });
 

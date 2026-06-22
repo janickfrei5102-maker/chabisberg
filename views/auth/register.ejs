@@ -1,0 +1,58 @@
+<%- include('../partials/header', { title: 'Registrieren' }) %>
+
+<h1>Registrieren</h1>
+<p>Du benötigst einen Einladungs-Token. Frage die Administration.</p>
+
+<% if (error) { %>
+  <p class="error"><%= error %></p>
+<% } %>
+
+<form action="/auth/register" method="POST">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+  <label>
+    Einladungs-Token
+    <input type="text" name="token" required maxlength="6"
+      value="<%= values.token || '' %>"
+      autocomplete="off" placeholder="z.B. A3F9B2"
+      style="text-transform: uppercase; letter-spacing: 0.2em">
+  </label>
+
+  <label>
+    Benutzername
+    <input type="text" name="username" required
+      value="<%= values.username || '' %>"
+      autocomplete="username">
+  </label>
+
+  <label>
+    Passwort <small>(mind. 8 Zeichen)</small>
+    <input type="password" name="password" required minlength="8"
+      autocomplete="new-password">
+  </label>
+
+  <label>
+    Passwort bestätigen
+    <input type="password" name="passwordConfirm" required minlength="8"
+      autocomplete="new-password">
+  </label>
+
+  <label>
+    Meine Adresse
+    <select name="address_id" required>
+      <option value="">— bitte wählen —</option>
+      <% addresses.forEach(addr => { %>
+        <option value="<%= addr.id %>"
+          <%= values.address_id == addr.id ? 'selected' : '' %>>
+          <%= addr.display_name %> — <%= addr.street %> <%= addr.house_number %>, <%= addr.city %>
+        </option>
+      <% }) %>
+    </select>
+  </label>
+
+  <button type="submit">Registrieren</button>
+</form>
+
+<p>Bereits registriert? <a href="/auth/login">Anmelden</a></p>
+
+<%- include('../partials/footer') %>
