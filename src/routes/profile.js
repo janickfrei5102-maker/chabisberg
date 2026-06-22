@@ -22,7 +22,7 @@ const {
   createResidentThumbnail,
   deleteResidentPicture,
 } = require('../middleware/upload');
-const { addresses, residents } = require('../db/repos');
+const { addresses, residents, users } = require('../db/repos');
 
 const router = express.Router();
 
@@ -56,11 +56,35 @@ const ownsResident = requireOwnsAddress(async (req) => {
 
 // ─── Profile Overview ─────────────────────────────────────────────────────────
 
-router.get('/', requireAddressAssigned, async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
+    /**
+     * Re-read address_id from DB rather than trusting the session cache.
+     * The session stores address_id at login time — if an admin later assigns
+     * or changes the address on this account, the session value is stale.
+     * A live DB lookup always reflects the current state.
+     */
+    const currentUser = await users.findById(req.session.user.id);
+    const addressId = currentUser?.address_id;
+
+    if (!addressId) {
+      return res.status(403).render('error', {
+        message: 'Keine Adresse zugewiesen. Bitte Admin kontaktieren.',
+        status: 403,
+      });
+    }
+
+    // Also refresh session so subsequent requests (resident CRUD) use live address_id
+    req.session.user = {
+      id: currentUser.id,
+      username: currentUser.username,
+      role: currentUser.role,
+      address_id: currentUser.address_id,
+    };
+
     const [address, residentList] = await Promise.all([
-      addresses.findById(req.session.user.address_id),
-      residents.findByAddressId(req.session.user.address_id),
+      addresses.findById(addressId),
+      residents.findByAddressId(addressId),
     ]);
     res.render('profile/index', {
       address,
