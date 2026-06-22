@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
@@ -36,6 +37,8 @@ if (process.env.NODE_ENV !== 'test') {
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+// cookie-parser required by csrf-csrf to read the CSRF double-submit cookie from req.cookies
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Session store: SQLite in production/dev, MemoryStore (express-session built-in) in test
