@@ -1,24 +1,22 @@
 # ── Build stage ────────────────────────────────────────────────────────────────
-# Use a pinned minor version for reproducibility. Node 20 LTS.
-FROM node:20-alpine AS deps
+# node:20-slim (Debian) ships prebuilt binaries for better-sqlite3 and sharp,
+# avoiding node-gyp native compilation entirely. Alpine (musl) has no prebuilts
+# for these packages and native compilation is brittle.
+FROM node:20-slim AS deps
 
 WORKDIR /app
-
-# Build tools required by better-sqlite3 (native node-gyp compilation on musl/Alpine)
-RUN apk add --no-cache python3 make g++
 
 # Copy manifests first so this layer is cached unless deps change
 COPY package.json package-lock.json ./
 
-# Install production deps only. sharp needs platform-native binaries —
-# npm ci triggers the postinstall script that downloads them for linux/x64.
+# Install production deps only.
 RUN npm ci --omit=dev
 
 # ── Runtime stage ───────────────────────────────────────────────────────────────
-FROM node:20-alpine AS runtime
+FROM node:20-slim AS runtime
 
 # Create non-root user for the app process
-RUN addgroup -S chabisberg && adduser -S chabisberg -G chabisberg
+RUN groupadd -r chabisberg && useradd -r -g chabisberg chabisberg
 
 WORKDIR /app
 
@@ -47,7 +45,4 @@ EXPOSE 3000
 # Run migrations + seed before starting, then start the app.
 # migrate:latest is idempotent — safe on every container start.
 # seed is also idempotent (checks if admin exists before inserting).
-CMD ["sh", "-c", "node -e \"require('./knexfile')\" && \
-     npx knex migrate:latest && \
-     npx knex seed:run && \
-     node src/server.js"]
+CMD ["sh", "-c", "npx knex migrate:latest && npx knex seed:run && node src/server.js"]
