@@ -10,15 +10,16 @@
 <nav>
   <a href="/" class="nav-brand">Chabisberg</a>
   <% if (user) { %>
-    <a href="/">Karte</a>
-    <a href="/profile">Mein Profil</a>
+    <a href="/" class="nav-link<%= currentPath === '/' ? ' nav-active' : '' %>">News</a>
+    <a href="/map" class="nav-link<%= currentPath === '/map' ? ' nav-active' : '' %>">Karte</a>
+    <a href="/profile" class="nav-link<%= (currentPath || '').startsWith('/profile') ? ' nav-active' : '' %>">Mein Profil</a>
     <% if (user.role === 'admin') { %>
-      <a href="/admin">Admin</a>
+      <a href="/admin" class="nav-link<%= (currentPath || '').startsWith('/admin') ? ' nav-active' : '' %>">Admin</a>
     <% } %>
-    <span class="nav-user" style="margin-left:auto"><%= user.username %></span>
-    <form action="/auth/logout" method="POST" style="display:inline">
+    <span class="nav-user"><%= user.username %></span>
+    <form action="/auth/logout" method="POST" style="display:inline;margin:0">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
-      <button type="submit">Logout</button>
+      <button type="submit" class="nav-logout">Abmelden</button>
     </form>
   <% } %>
 </nav>

@@ -42,15 +42,20 @@ router.get('/', requireAuth, async (req, res, next) => {
       attachments: attachByPost[p.id] || [],
     }));
 
-    res.render('index', {
+    res.render('news', {
       postList: enrichedPosts,
       total,
       page,
       pageSize: PAGE_SIZE,
+      maxAttachmentMb: parseInt(process.env.MAX_UPLOAD_SIZE_MB) || 90,
     });
   } catch (err) {
     next(err);
   }
+});
+
+router.get('/map', requireAuth, (_req, res) => {
+  res.render('map');
 });
 
 // ─── Address detail view ──────────────────────────────────────────────────────

@@ -90,6 +90,7 @@ app.use(
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   res.locals.csrfToken = ''; // overwritten by attachCsrfToken on GET requests
+  res.locals.currentPath = req.path; // used by nav to highlight active link
   next();
 });
 

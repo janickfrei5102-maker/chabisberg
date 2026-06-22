@@ -91,7 +91,7 @@ router.post(
         });
       }
 
-      res.redirect('/#news');
+      res.redirect('/');
     } catch (err) {
       // Clean up uploaded files on DB error to avoid orphans
       for (const f of uploadedFiles) {
@@ -139,7 +139,7 @@ router.post('/:id/delete', requireAuth, async (req, res, next) => {
       deleteAttachmentFiles(a.stored_path, a.is_image);
     }
 
-    res.redirect('/#news');
+    res.redirect('/');
   } catch (err) {
     next(err);
   }

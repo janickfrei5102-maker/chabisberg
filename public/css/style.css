@@ -24,6 +24,32 @@ nav button {
 nav .nav-brand {
   font-weight: bold;
   font-size: 1.2rem;
+  margin-right: 0.5rem;
+}
+nav .nav-link {
+  font-size: 0.95rem;
+  opacity: 0.85;
+}
+nav .nav-link:hover,
+nav .nav-link.nav-active {
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+nav .nav-user {
+  margin-left: auto;
+  font-size: 0.85rem;
+  opacity: 0.75;
+}
+nav .nav-logout {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-bottom: 0;
 }
 main {
   padding: 1.5rem;
