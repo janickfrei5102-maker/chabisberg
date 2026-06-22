@@ -4,6 +4,9 @@ FROM node:20-alpine AS deps
 
 WORKDIR /app
 
+# Build tools required by better-sqlite3 (native node-gyp compilation on musl/Alpine)
+RUN apk add --no-cache python3 make g++
+
 # Copy manifests first so this layer is cached unless deps change
 COPY package.json package-lock.json ./
 
