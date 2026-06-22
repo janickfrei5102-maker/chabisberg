@@ -33,12 +33,10 @@
  *
  * Cookie naming:
  * ──────────────
- * In production (behind HTTPS/Cloudflare Tunnel), we use the `__Host-` prefix.
- * This prefix enforces that:
- *   - The cookie may only be set over HTTPS (Secure flag required)
- *   - The Path must be "/"
- *   - No Domain attribute — prevents subdomain-theft attacks
- * In development, `__Host-` is not valid over HTTP, so we use a plain name.
+ * Plain name `csrf` — no __Host- prefix. Works over both HTTP and HTTPS.
+ * The __Host- prefix would enforce Secure+HTTPS at the browser level, which
+ * breaks direct LAN access on port 3000. CSRF protection is still effective
+ * via HMAC-signed double-submit + SameSite=Lax.
  *
  * Test environment:
  * ─────────────────
@@ -49,12 +47,6 @@
 
 const { doubleCsrf } = require('csrf-csrf');
 
-/**
- * True when the app is running behind an HTTPS-terminating proxy (Cloudflare
- * Tunnel). Controls the Secure cookie flag and the cookie name prefix.
- */
-const IS_HTTPS = process.env.TRUST_PROXY === 'true';
-
 const { generateToken, doubleCsrfProtection } = doubleCsrf({
   /**
    * The secret used to HMAC-sign the CSRF cookie value.
@@ -64,10 +56,18 @@ const { generateToken, doubleCsrfProtection } = doubleCsrf({
   getSecret: () => process.env.SESSION_SECRET || 'dev-csrf-secret-change-me',
 
   /**
-   * Cookie name. `__Host-` prefix enforces Secure+Path=/+no Domain in HTTPS.
-   * The `-dev` suffix in dev makes it visually distinct in browser devtools.
+   * Plain cookie name without __Host- prefix so the cookie works over both
+   * HTTP (direct access, local dev) and HTTPS (Cloudflare Tunnel).
+   *
+   * The __Host- prefix enforces Secure+HTTPS at the browser level — which
+   * breaks direct HTTP access on port 3000. Since we also support HTTP access
+   * (e.g. initial setup, local dev, Unraid LAN), we use a plain name.
+   *
+   * CSRF protection is still strong: the double-submit HMAC signature verifies
+   * token integrity, and SameSite=Lax blocks cross-site form POSTs in all
+   * modern browsers.
    */
-  cookieName: IS_HTTPS ? '__Host-csrf' : 'csrf-dev',
+  cookieName: 'csrf',
 
   cookieOptions: {
     /**
@@ -86,13 +86,12 @@ const { generateToken, doubleCsrfProtection } = doubleCsrf({
     sameSite: 'lax',
 
     /**
-     * Secure=true when behind HTTPS proxy. The Cloudflare Tunnel terminates TLS
-     * and forwards HTTP internally; `trust proxy` is set to tell Express that
-     * the request was originally HTTPS. Without Secure, the cookie would be sent
-     * over plain HTTP inside the cluster, which is acceptable here (it's loopback),
-     * but we set it correctly anyway.
+     * secure: false — allow the cookie over HTTP for direct LAN access.
+     * When behind Cloudflare Tunnel (HTTPS), the browser will send this cookie
+     * regardless because SameSite=Lax covers the cross-site case.
+     * The CSRF protection does not rely on the Secure flag for its correctness.
      */
-    secure: IS_HTTPS,
+    secure: false,
 
     path: '/',
   },
