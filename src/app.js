@@ -67,6 +67,18 @@ app.use(
 );
 
 /**
+ * Set safe defaults for res.locals so templates always have these variables,
+ * even when an error fires before the dedicated middleware runs (e.g., a CSRF
+ * rejection happens before attachCsrfToken and the user middleware execute).
+ * Without these defaults, header.ejs throws ReferenceError on error pages.
+ */
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  res.locals.csrfToken = ''; // overwritten by attachCsrfToken on GET requests
+  next();
+});
+
+/**
  * CSRF protection: validates token on POST/PUT/DELETE/PATCH.
  * Must come AFTER session middleware (session can be used as token store).
  * Must come BEFORE routes that process forms.
@@ -78,17 +90,12 @@ app.use(csrfProtection);
  * Generate CSRF token and make it available as res.locals.csrfToken.
  * EJS forms include: <input type="hidden" name="_csrf" value="<%= csrfToken %>">
  * Must come after csrfProtection so the token is generated with the same config.
+ * Overwrites the empty-string default set above.
  */
 app.use(attachCsrfToken);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../views'));
-
-// Make session user available in all views
-app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
-  next();
-});
 
 app.use('/auth', require('./routes/auth'));
 app.use('/admin', require('./routes/admin'));
