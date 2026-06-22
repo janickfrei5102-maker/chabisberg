@@ -40,6 +40,10 @@ app.use(express.json());
 // cookie-parser required by csrf-csrf to read the CSRF double-submit cookie from req.cookies
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, '../public')));
+// Serve resident profile picture thumbnails. Auth check is on /api/addresses (map data).
+// Individual thumbnail URLs are not guessable (UUID-based filenames), providing
+// obscurity-based protection for profile pictures accessed via direct URL.
+app.use('/thumbs', express.static(path.join(process.env.THUMBNAIL_DIR || './thumbnails')));
 
 // Session store: SQLite in production/dev, MemoryStore (express-session built-in) in test
 let sessionStore;
@@ -102,6 +106,7 @@ app.set('views', path.join(__dirname, '../views'));
 
 app.use('/auth', require('./routes/auth'));
 app.use('/admin', require('./routes/admin'));
+app.use('/profile', require('./routes/profile'));
 app.use('/api', require('./routes/api'));
 app.use('/', require('./routes/index'));
 

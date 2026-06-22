@@ -10,10 +10,12 @@
 <nav>
   <a href="/" class="nav-brand">Chabisberg</a>
   <% if (user) { %>
-    <span class="nav-user"><%= user.username %></span>
+    <a href="/">Karte</a>
+    <a href="/profile">Mein Profil</a>
     <% if (user.role === 'admin') { %>
       <a href="/admin">Admin</a>
     <% } %>
+    <span class="nav-user" style="margin-left:auto"><%= user.username %></span>
     <form action="/auth/logout" method="POST" style="display:inline">
       <input type="hidden" name="_csrf" value="<%= csrfToken %>">
       <button type="submit">Logout</button>

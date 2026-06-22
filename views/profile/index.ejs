@@ -1,0 +1,62 @@
+<%- include('../partials/header', { title: 'Mein Profil' }) %>
+
+<h1>Mein Profil</h1>
+
+<% if (message) { %><p class="flash"><%= message %></p><% } %>
+
+<section class="profile-section">
+  <h2>Adresse</h2>
+  <div class="address-info">
+    <p><strong><%= address.street %> <%= address.house_number %></strong>, <%= address.postal_code %> <%= address.city %></p>
+    <p style="color:#666;font-size:0.9em">Strasse, PLZ und Ort werden vom Admin verwaltet.</p>
+  </div>
+
+  <form action="/profile/address" method="POST" style="max-width:400px">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>
+      Anzeigename (z.B. "Familie Müller")
+      <input type="text" name="display_name" value="<%= address.display_name || '' %>">
+    </label>
+    <button type="submit">Speichern</button>
+  </form>
+</section>
+
+<section class="profile-section">
+  <h2>Bewohner</h2>
+  <a href="/profile/residents/new" class="btn">+ Bewohner hinzufügen</a>
+
+  <div class="residents-grid">
+    <% residents.forEach(function(r) { %>
+    <div class="resident-card">
+      <div class="resident-avatar">
+        <% if (r.picture) { %>
+          <img src="/thumbs/residents/<%= r.picture %>" alt="<%= r.display_name %>">
+        <% } else { %>
+          <span class="avatar-placeholder">
+            <% if (r.type === 'Katze') { %>🐱<% } else if (r.type === 'Hund') { %>🐶<% } else if (r.type === 'Kind') { %>🧒<% } else { %>👤<% } %>
+          </span>
+        <% } %>
+      </div>
+      <div class="resident-info">
+        <strong><%= r.display_name %></strong>
+        <span class="resident-type"><%= r.type %></span>
+        <% if (r.claim) { %><p class="resident-claim"><%= r.claim %></p><% } %>
+        <% if (r.phone) { %><p class="resident-phone">📞 <%= r.phone %></p><% } %>
+      </div>
+      <div class="resident-actions">
+        <a href="/profile/residents/<%= r.id %>/edit">Bearbeiten</a>
+        <form action="/profile/residents/<%= r.id %>/delete" method="POST"
+              onsubmit="return confirm('<%= r.display_name %> wirklich löschen?')">
+          <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+          <button type="submit" class="btn-danger">Löschen</button>
+        </form>
+      </div>
+    </div>
+    <% }) %>
+    <% if (!residents.length) { %>
+      <p style="color:#999">Noch keine Bewohner erfasst.</p>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../partials/footer') %>

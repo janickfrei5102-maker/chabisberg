@@ -1,0 +1,88 @@
+<%- include('../partials/header', { title: resident ? 'Bewohner bearbeiten' : 'Neuer Bewohner' }) %>
+
+<h1><%= resident ? 'Bewohner bearbeiten' : 'Neuer Bewohner' %></h1>
+<% if (error) { %><p class="error"><%= error %></p><% } %>
+
+<form action="<%= resident ? '/profile/residents/' + resident.id : '/profile/residents' %>"
+      method="POST" enctype="multipart/form-data" style="max-width:480px">
+  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+  <label>
+    Name <span style="color:#c00">*</span>
+    <input type="text" name="display_name" value="<%= resident ? (resident.display_name || '') : '' %>" required>
+  </label>
+
+  <label>
+    Typ
+    <select name="type" id="type-select" onchange="updateShowbirthday()">
+      <% ['Erwachsener','Kind','Katze','Hund'].forEach(function(t) { %>
+        <option value="<%= t %>" <%= (resident && resident.type === t) ? 'selected' : (!resident && t === 'Erwachsener') ? 'selected' : '' %>><%= t %></option>
+      <% }) %>
+    </select>
+  </label>
+
+  <label>
+    Telefon (optional)
+    <input type="text" name="phone" value="<%= resident ? (resident.phone || '') : '' %>">
+  </label>
+
+  <label>
+    Kurzbeschreibung / Skills (optional)
+    <input type="text" name="claim" value="<%= resident ? (resident.claim || '') : '' %>" placeholder="z.B. Schreiner, repariert gerne">
+  </label>
+
+  <label>
+    Geburtstag (optional)
+    <input type="date" name="birthday" id="birthday-field" value="<%= resident ? (resident.birthday || '') : '' %>">
+  </label>
+
+  <label id="showbirthday-label" style="flex-direction:row;align-items:center;gap:0.5rem">
+    <input type="checkbox" name="showbirthday" id="showbirthday"
+      <%= (resident && resident.showbirthday) ? 'checked' : '' %>>
+    Geburtstag anzeigen
+  </label>
+
+  <% if (resident && resident.picture) { %>
+  <div style="margin-bottom:0.75rem">
+    <p style="margin:0 0 0.4rem;font-weight:500">Aktuelles Bild:</p>
+    <img src="/thumbs/residents/<%= resident.picture %>" alt="Profil"
+         style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:2px solid #ccc">
+  </div>
+  <% } %>
+
+  <label>
+    Profilbild <% if (resident && resident.picture) { %><small>(leer lassen = behalten)</small><% } %>
+    <input type="file" name="picture" accept="image/*">
+  </label>
+
+  <div style="margin-top:1rem">
+    <button type="submit">Speichern</button>
+    <a href="/profile" style="margin-left:1rem">Abbrechen</a>
+  </div>
+</form>
+
+<script>
+  function updateShowbirthday() {
+    var type = document.getElementById('type-select').value;
+    var isAnimal = type === 'Katze' || type === 'Hund';
+    var showbirthday = document.getElementById('showbirthday');
+    var showLabel = document.getElementById('showbirthday-label');
+    var birthdayField = document.getElementById('birthday-field');
+
+    if (isAnimal) {
+      showbirthday.checked = false;
+      showbirthday.disabled = true;
+      showLabel.style.opacity = '0.4';
+      birthdayField.value = '';
+      birthdayField.disabled = true;
+    } else {
+      showbirthday.disabled = false;
+      showLabel.style.opacity = '1';
+      birthdayField.disabled = false;
+    }
+  }
+  // Run on page load to set initial state
+  updateShowbirthday();
+</script>
+
+<%- include('../partials/footer') %>
