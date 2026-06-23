@@ -142,15 +142,13 @@ const csrfProtection =
  *   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
  */
 function attachCsrfToken(req, res, next) {
-  if (req.method === 'GET' || req.method === 'HEAD') {
-    try {
-      res.locals.csrfToken = generateToken(req, res);
-    } catch (_err) {
-      // If token generation fails (misconfigured secret etc.), set empty string.
-      // The subsequent POST will then correctly fail CSRF validation.
-      res.locals.csrfToken = '';
-    }
-  } else {
+  // Generate on every request, not just GET. POST handlers that re-render
+  // a form on error (e.g. 401 wrong password) must embed a valid token in
+  // the response, otherwise the next submit arrives with _csrf='' → 403.
+  // generateToken reuses the existing cookie when still valid (fast path).
+  try {
+    res.locals.csrfToken = generateToken(req, res);
+  } catch (_err) {
     res.locals.csrfToken = '';
   }
   next();
