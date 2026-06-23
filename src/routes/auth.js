@@ -174,7 +174,7 @@ router.post('/login', loginLimiter, async (req, res) => {
    * we only persist sessions that have data.
    */
   if (rememberMe) {
-    req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
+    req.session.cookie.maxAge = 10 * 365 * 24 * 60 * 60 * 1000; // ~10 years
   }
 
   // Do NOT call session.save() explicitly here.
