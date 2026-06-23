@@ -13,8 +13,9 @@
 **Docker Compose:** via Compose Manager Plus (Unraid Community Plugin)
 
 **Admin-Login:**
+
 - Username: `admin`
-- Passwort: `Chabisberg2025!`  ← nach erstem Login ändern!
+- Passwort: `Chabisberg2025!` ← nach erstem Login ändern!
 
 ### Wie es installiert wurde
 
@@ -38,6 +39,7 @@ docker compose up -d chabisberg --build
 ```
 
 **Inhalt der .env auf dem Server:**
+
 ```env
 PORT=3000
 NODE_ENV=production
@@ -63,12 +65,14 @@ CLOUDFLARE_TUNNEL_TOKEN=unused
 ### Bekannte Probleme & Fixes
 
 **Problem: `better-sqlite3` Build-Fehler im Docker**
+
 - Ursache: `node:20-alpine` hat kein Python/gcc → node-gyp schlägt fehl
 - Ursache 2: `node:20-slim` (Debian) hat auch kein Python standardmässig
 - Fix: Im `Dockerfile` im `deps`-Stage `apt-get install -y python3 make g++` hinzugefügt
 - Commit: `fix: add python3/make/g++ via apt-get in deps stage for node-gyp`
 
 **Problem: Login 403 / CSRF invalid token**
+
 - Ursache: Cookie-Name `__Host-csrf` mit `Secure`-Flag — Browser verwirft Secure-Cookies über HTTP
 - Fix: Cookie auf einfachen Namen `csrf` ohne Prefix und ohne `Secure`-Flag umgestellt
 - CSRF-Schutz bleibt intakt via HMAC-signiertes Double-Submit + `SameSite=Lax`
@@ -90,11 +94,13 @@ docker compose up -d chabisberg --build
 ```
 
 Logs während/nach dem Start:
+
 ```bash
 docker logs -f chabisberg
 ```
 
 Erwartete Ausgabe:
+
 ```
 Chabisberg running on port 3000 [production]
 ```
@@ -133,6 +139,7 @@ docker compose -f /mnt/user/appdata/chabisberg-app/docker-compose.yml down
 ---
 
 ## Server
+
 - **IP:** `192.168.0.4`
 - **Unraid WebGUI:** `http://192.168.0.4` (Port 80)
 - **SSH:** Port 22, aktiv
@@ -160,15 +167,19 @@ sudo mount -t cifs //192.168.0.4/JanickWebsite /mnt/janickwebsite \
 ```
 
 ### Wichtig: Verzeichnisse
+
 Neue Unterverzeichnisse in `www/` müssen **im Unraid-Terminal** erstellt werden (Guest-Mount hat dort keine Schreibrechte):
+
 ```bash
 # Im Unraid-Terminal (WebGUI → Terminal-Icon)
 mkdir -p /mnt/user/JanickWebsite/www/NEUESVERZEICHNIS
 chmod 777 /mnt/user/JanickWebsite/www/NEUESVERZEICHNIS
 ```
+
 Danach können Dateien normal über den gemounteten Share geschrieben werden.
 
 ### Share-Struktur
+
 ```
 JanickWebsite/
 ├── www/                   → Web-Root (/config/www im Container)
@@ -196,7 +207,9 @@ JanickWebsite/
 - **Volume:** `JanickWebsite` Share → `/config` im Container
 
 ### Neue Subdomain hinzufügen
+
 1. Neue Config in `nginx/site-confs/NAME.conf`:
+
 ```nginx
 server {
     listen 80;
@@ -220,7 +233,9 @@ server {
     }
 }
 ```
+
 2. Nginx neu laden:
+
 ```bash
 # Im Unraid-Terminal
 docker exec JanickWebsite nginx -s reload
@@ -237,6 +252,7 @@ docker exec JanickWebsite nginx -s reload
 - **Alle Ingress-Regeln zeigen auf:** `http://192.168.0.4:8081`
 
 ### Neue Subdomain via API hinzufügen
+
 ```bash
 # 1. Tunnel-Ingress aktualisieren (bestehende Regeln + neue)
 curl -X PUT "https://api.cloudflare.com/client/v4/accounts/ACCOUNT_ID/cfd_tunnel/TUNNEL_ID/configurations" \

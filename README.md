@@ -5,15 +5,15 @@ Self-hosted auf Unraid, Zugang via Cloudflare Tunnel.
 
 ## Stack
 
-| Schicht | Technologie |
-|---|---|
-| Backend | Node.js + Express 4 |
-| Datenbank | SQLite + Knex + better-sqlite3 |
-| Frontend | EJS (server-rendered, kein Build-Schritt) |
-| Karte | Leaflet + OSM-Tiles (kein API-Key) |
-| Auth | express-session, HTTP-only Cookies, bcrypt |
-| Uploads | multer + sharp (Thumbnails) |
-| Deploy | Docker + Cloudflare Tunnel |
+| Schicht   | Technologie                                |
+| --------- | ------------------------------------------ |
+| Backend   | Node.js + Express 4                        |
+| Datenbank | SQLite + Knex + better-sqlite3             |
+| Frontend  | EJS (server-rendered, kein Build-Schritt)  |
+| Karte     | Leaflet + OSM-Tiles (kein API-Key)         |
+| Auth      | express-session, HTTP-only Cookies, bcrypt |
+| Uploads   | multer + sharp (Thumbnails)                |
+| Deploy    | Docker + Cloudflare Tunnel                 |
 
 ---
 
@@ -57,11 +57,11 @@ Migrationen + Seed laufen automatisch beim Container-Start.
 
 Die App schreibt alle persistenten Daten in drei Verzeichnisse:
 
-| Container-Pfad | Enthält | ENV-Variable (Host-Seite) |
-|---|---|---|
-| `/data/db` | SQLite-Datenbank | `DATA_DB_PATH` |
-| `/data/uploads` | Original-Uploads (Posts, Profilbilder) | `DATA_UPLOADS_PATH` |
-| `/data/thumbnails` | Sharp-Thumbnails | `DATA_THUMBNAILS_PATH` |
+| Container-Pfad     | Enthält                                | ENV-Variable (Host-Seite) |
+| ------------------ | -------------------------------------- | ------------------------- |
+| `/data/db`         | SQLite-Datenbank                       | `DATA_DB_PATH`            |
+| `/data/uploads`    | Original-Uploads (Posts, Profilbilder) | `DATA_UPLOADS_PATH`       |
+| `/data/thumbnails` | Sharp-Thumbnails                       | `DATA_THUMBNAILS_PATH`    |
 
 Standard (ohne Unraid): `./data/db`, `./data/uploads`, `./data/thumbnails` relativ zur `docker-compose.yml`.
 
@@ -160,23 +160,23 @@ Das App-Limit (`MAX_UPLOAD_SIZE_MB=90`) liegt bewusst darunter, um Puffer für R
 
 ## ENV-Referenz
 
-| Variable | Default | Beschreibung |
-|---|---|---|
-| `PORT` | `3000` | HTTP-Port des App-Servers |
-| `NODE_ENV` | `production` | `development` aktiviert Morgan-Logging, deaktiviert CSRF im Test |
-| `SESSION_SECRET` | — | **Pflicht.** Zufälliger String ≥ 32 Zeichen |
-| `DATABASE_PATH` | `/data/db/chabisberg.sqlite` | Absoluter Pfad zur SQLite-Datei |
-| `UPLOAD_DIR` | `/data/uploads` | Verzeichnis für Original-Uploads |
-| `THUMBNAIL_DIR` | `/data/thumbnails` | Verzeichnis für Sharp-Thumbnails |
-| `MAX_UPLOAD_SIZE_MB` | `90` | Max. Dateigrösse pro Anhang (MB) |
-| `ADMIN_USERNAME` | `admin` | Benutzername des initialen Admin-Accounts (Seed) |
-| `ADMIN_PASSWORD` | — | **Pflicht.** Passwort des initialen Admin-Accounts |
-| `TRUST_PROXY` | `true` | `true` hinter Cloudflare Tunnel / Reverse Proxy |
-| `DATA_DB_PATH` | `./data/db` | Host-Pfad für DB-Volume (docker-compose) |
-| `DATA_UPLOADS_PATH` | `./data/uploads` | Host-Pfad für Uploads-Volume |
-| `DATA_THUMBNAILS_PATH` | `./data/thumbnails` | Host-Pfad für Thumbnails-Volume |
-| `HOST_PORT` | `127.0.0.1:3000` | Port-Binding auf Host (docker-compose) |
-| `CLOUDFLARE_TUNNEL_TOKEN` | — | Tunnel-Token aus Cloudflare Zero Trust Dashboard |
+| Variable                  | Default                      | Beschreibung                                                     |
+| ------------------------- | ---------------------------- | ---------------------------------------------------------------- |
+| `PORT`                    | `3000`                       | HTTP-Port des App-Servers                                        |
+| `NODE_ENV`                | `production`                 | `development` aktiviert Morgan-Logging, deaktiviert CSRF im Test |
+| `SESSION_SECRET`          | —                            | **Pflicht.** Zufälliger String ≥ 32 Zeichen                      |
+| `DATABASE_PATH`           | `/data/db/chabisberg.sqlite` | Absoluter Pfad zur SQLite-Datei                                  |
+| `UPLOAD_DIR`              | `/data/uploads`              | Verzeichnis für Original-Uploads                                 |
+| `THUMBNAIL_DIR`           | `/data/thumbnails`           | Verzeichnis für Sharp-Thumbnails                                 |
+| `MAX_UPLOAD_SIZE_MB`      | `90`                         | Max. Dateigrösse pro Anhang (MB)                                 |
+| `ADMIN_USERNAME`          | `admin`                      | Benutzername des initialen Admin-Accounts (Seed)                 |
+| `ADMIN_PASSWORD`          | —                            | **Pflicht.** Passwort des initialen Admin-Accounts               |
+| `TRUST_PROXY`             | `true`                       | `true` hinter Cloudflare Tunnel / Reverse Proxy                  |
+| `DATA_DB_PATH`            | `./data/db`                  | Host-Pfad für DB-Volume (docker-compose)                         |
+| `DATA_UPLOADS_PATH`       | `./data/uploads`             | Host-Pfad für Uploads-Volume                                     |
+| `DATA_THUMBNAILS_PATH`    | `./data/thumbnails`          | Host-Pfad für Thumbnails-Volume                                  |
+| `HOST_PORT`               | `127.0.0.1:3000`             | Port-Binding auf Host (docker-compose)                           |
+| `CLOUDFLARE_TUNNEL_TOKEN` | —                            | Tunnel-Token aus Cloudflare Zero Trust Dashboard                 |
 
 ---
 
@@ -191,14 +191,14 @@ Das App-Limit (`MAX_UPLOAD_SIZE_MB=90`) liegt bewusst darunter, um Puffer für R
 
 ## NPM-Scripts
 
-| Script | Beschreibung |
-|---|---|
-| `npm run dev` | Dev-Server mit nodemon |
-| `npm start` | Produktions-Start |
-| `npm test` | Jest-Tests |
-| `npm run lint` | ESLint + Prettier |
-| `npm run seed` | Migrationen + Demo-Daten |
-| `npm run migrate` | Nur Migrationen |
+| Script            | Beschreibung             |
+| ----------------- | ------------------------ |
+| `npm run dev`     | Dev-Server mit nodemon   |
+| `npm start`       | Produktions-Start        |
+| `npm test`        | Jest-Tests               |
+| `npm run lint`    | ESLint + Prettier        |
+| `npm run seed`    | Migrationen + Demo-Daten |
+| `npm run migrate` | Nur Migrationen          |
 
 ---
 
