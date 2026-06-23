@@ -1,5 +1,7 @@
 services:
   chabisberg:
+    # Pre-built image from GHCR (set by CI). Falls back to local build.
+    image: ${CHABISBERG_IMAGE:-ghcr.io/janickfrei5102-maker/chabisberg:latest}
     build: .
     container_name: chabisberg
     restart: unless-stopped
