@@ -189,6 +189,7 @@ describe('Admin user management', () => {
     const addr = await createAddress(db, { display_name: 'Ziel' });
     const res = await adminAgent.post('/admin/users').send({
       username: 'newbie',
+      display_name: 'New Bie',
       password: 'sicherespasswort',
       role: 'resident',
       address_id: addr.id,

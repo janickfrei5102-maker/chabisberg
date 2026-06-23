@@ -1,5 +1,14 @@
 module.exports = function createUserRepo(db) {
-  const SAFE_COLS = ['id', 'username', 'email', 'role', 'address_id', 'created_at', 'updated_at'];
+  const SAFE_COLS = [
+    'id',
+    'username',
+    'display_name',
+    'email',
+    'role',
+    'address_id',
+    'created_at',
+    'updated_at',
+  ];
 
   return {
     findById(id) {

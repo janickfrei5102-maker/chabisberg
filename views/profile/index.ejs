@@ -5,6 +5,19 @@
 <% if (message) { %><p class="flash"><%= message %></p><% } %>
 
 <section class="profile-section">
+  <h2>Anzeigename</h2>
+  <p style="color:#666;font-size:0.9em">Erscheint bei deinen Beiträgen im News-Stream.</p>
+  <form action="/profile/display-name" method="POST" style="max-width:400px">
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+    <label>
+      Anzeigename
+      <input type="text" name="display_name" value="<%= currentUser.display_name || '' %>" required>
+    </label>
+    <button type="submit">Speichern</button>
+  </form>
+</section>
+
+<section class="profile-section">
   <h2>Adresse</h2>
   <div class="address-info">
     <p><strong><%= address.street %> <%= address.house_number %></strong>, <%= address.postal_code %> <%= address.city %></p>

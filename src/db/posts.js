@@ -8,6 +8,7 @@ module.exports = function createPostRepo(db) {
         .select(
           'posts.*',
           'users.username as author_username',
+          'users.display_name as author_display_name',
           'addresses.id as author_address_id',
           'addresses.display_name as author_address_name'
         )

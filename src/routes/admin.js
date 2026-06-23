@@ -155,20 +155,21 @@ router.get('/users/new', async (req, res, next) => {
 });
 
 router.post('/users', async (req, res, next) => {
-  const { username, password, role, address_id } = req.body;
+  const { username, display_name, password, role, address_id } = req.body;
   const allAddresses = await addresses.findAll().catch(() => []);
 
-  if (!username?.trim() || !password || password.length < 8) {
+  if (!username?.trim() || !display_name?.trim() || !password || password.length < 8) {
     return res.status(400).render('admin/users/form', {
       user: null,
       addresses: allAddresses,
-      error: 'Username und Passwort (min. 8 Zeichen) erforderlich',
+      error: 'Username, Anzeigename und Passwort (min. 8 Zeichen) erforderlich',
     });
   }
   try {
     const hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
     await users.create({
       username: username.trim(),
+      display_name: display_name.trim(),
       password_hash: hash,
       role: role === 'admin' ? 'admin' : 'resident',
       address_id: address_id ? parseInt(address_id, 10) : null,
@@ -204,10 +205,11 @@ router.get('/users/:id/edit', async (req, res, next) => {
 });
 
 router.post('/users/:id', async (req, res, next) => {
-  const { username, password, role, address_id } = req.body;
+  const { username, display_name, password, role, address_id } = req.body;
   try {
     const updates = {
       username: username?.trim(),
+      display_name: display_name?.trim() || undefined,
       role: role === 'admin' ? 'admin' : 'resident',
       address_id: address_id ? parseInt(address_id, 10) : null,
     };

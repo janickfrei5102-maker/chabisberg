@@ -9,8 +9,13 @@
   <input type="hidden" name="_csrf" value="<%= csrfToken %>">
 
   <label>
-    Username
+    Username <small>(nur zum Einloggen)</small>
     <input type="text" name="username" value="<%= user ? user.username : '' %>" required autocomplete="off">
+  </label>
+
+  <label>
+    Anzeigename <small>(erscheint bei Beiträgen)</small>
+    <input type="text" name="display_name" value="<%= user ? (user.display_name || '') : '' %>" required autocomplete="off">
   </label>
 
   <label>

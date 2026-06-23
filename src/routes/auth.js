@@ -208,8 +208,8 @@ router.post(
       res.status(429).render('error', { message: 'Zu viele Registrierungsversuche.', status: 429 }),
   }),
   async (req, res) => {
-    const { token, username, password, passwordConfirm, address_id } = req.body;
-    const values = { token, username, address_id }; // repopulate form on error
+    const { token, username, display_name, password, passwordConfirm, address_id } = req.body;
+    const values = { token, username, display_name, address_id }; // repopulate form on error
 
     const renderError = async (msg) => {
       const addresses = await repos.addresses.findAll();
@@ -217,7 +217,14 @@ router.post(
     };
 
     // ── Field presence checks ─────────────────────────────────────────────
-    if (!token || !username || !password || !passwordConfirm || !address_id) {
+    if (
+      !token ||
+      !username ||
+      !display_name?.trim() ||
+      !password ||
+      !passwordConfirm ||
+      !address_id
+    ) {
       return renderError('Alle Felder sind erforderlich.');
     }
 
@@ -270,6 +277,7 @@ router.post(
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
     const newUser = await repos.users.create({
       username: username.trim(),
+      display_name: display_name.trim(),
       password_hash: passwordHash,
       address_id: Number(address_id),
       role: 'resident',

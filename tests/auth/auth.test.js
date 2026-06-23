@@ -158,6 +158,7 @@ describe('POST /auth/register', () => {
     const res = await agent.post('/auth/register').send({
       token: 'AABBCC',
       username: 'newresident',
+      display_name: 'New Resident',
       password: 'securepass1',
       passwordConfirm: 'securepass1',
       address_id: addr.id,
@@ -181,6 +182,7 @@ describe('POST /auth/register', () => {
     const res = await request(app).post('/auth/register').send({
       token: 'ZZZZZZ',
       username: 'attacker',
+      display_name: 'Attacker',
       password: 'password123',
       passwordConfirm: 'password123',
       address_id: addr.id,
@@ -198,6 +200,7 @@ describe('POST /auth/register', () => {
     const res = await request(app).post('/auth/register').send({
       token: 'USEDXX',
       username: 'latecomer',
+      display_name: 'Late Comer',
       password: 'password123',
       passwordConfirm: 'password123',
       address_id: addr.id,
@@ -213,6 +216,7 @@ describe('POST /auth/register', () => {
     const res = await request(app).post('/auth/register').send({
       token: 'MMATCH',
       username: 'mismatch',
+      display_name: 'Mismatch User',
       password: 'password123',
       passwordConfirm: 'different123',
       address_id: addr.id,
@@ -228,6 +232,7 @@ describe('POST /auth/register', () => {
     const res = await request(app).post('/auth/register').send({
       token: 'SHRTPW',
       username: 'shortpass',
+      display_name: 'Short Pass',
       password: 'abc',
       passwordConfirm: 'abc',
       address_id: addr.id,
@@ -244,6 +249,7 @@ describe('POST /auth/register', () => {
     const res = await request(app).post('/auth/register').send({
       token: 'DUPTOK',
       username: 'taken',
+      display_name: 'Taken User',
       password: 'password123',
       passwordConfirm: 'password123',
       address_id: addr.id,

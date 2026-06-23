@@ -19,10 +19,17 @@
   </label>
 
   <label>
-    Benutzername
+    Benutzername <small>(nur zum Einloggen, nicht öffentlich sichtbar)</small>
     <input type="text" name="username" required
       value="<%= values.username || '' %>"
       autocomplete="username">
+  </label>
+
+  <label>
+    Anzeigename <small>(erscheint bei deinen Beiträgen, z.B. "Max Muster")</small>
+    <input type="text" name="display_name" required
+      value="<%= values.display_name || '' %>"
+      autocomplete="name" placeholder="Vorname Nachname">
   </label>
 
   <label>

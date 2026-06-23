@@ -2,7 +2,7 @@
   <header class="post-header">
     <div class="post-meta">
       <span>
-        <strong><%= post.author_username %></strong>
+        <strong><%= post.author_display_name || post.author_username %></strong>
         <% if (post.author_address_id && post.author_address_name) { %>
           · <a href="/addresses/<%= post.author_address_id %>" class="post-address-link"><%= post.author_address_name %></a>
         <% } %>

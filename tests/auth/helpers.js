@@ -52,10 +52,16 @@ async function createAddress(db, overrides = {}) {
 
 async function createUser(
   db,
-  { username, password = 'testpass1234', address_id = null, role = 'resident' }
+  { username, display_name, password = 'testpass1234', address_id = null, role = 'resident' }
 ) {
   const hash = await bcrypt.hash(password, TEST_BCRYPT_ROUNDS);
-  const [id] = await db('users').insert({ username, password_hash: hash, address_id, role });
+  const [id] = await db('users').insert({
+    username,
+    display_name: display_name || username,
+    password_hash: hash,
+    address_id,
+    role,
+  });
   return db('users').where({ id }).first();
 }
 

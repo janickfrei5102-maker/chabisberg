@@ -92,9 +92,26 @@ router.get('/', async (req, res, next) => {
     res.render('profile/index', {
       address,
       residents: residentList,
+      currentUser,
       message: req.query.message || null,
       password_error: req.query.password_error || null,
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── Display name change ──────────────────────────────────────────────────────
+
+router.post('/display-name', async (req, res, next) => {
+  const { display_name } = req.body;
+  if (!display_name?.trim()) {
+    return res.redirect('/profile?message_error=Anzeigename+darf+nicht+leer+sein.');
+  }
+  try {
+    await users.update(req.session.user.id, { display_name: display_name.trim() });
+    req.session.user.display_name = display_name.trim();
+    res.redirect('/profile?message=Anzeigename+gespeichert');
   } catch (err) {
     next(err);
   }
