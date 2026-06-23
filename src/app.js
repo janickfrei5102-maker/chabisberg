@@ -14,13 +14,11 @@ if (process.env.TRUST_PROXY === 'true') {
   app.set('trust proxy', true);
 }
 
-const IS_HTTPS_PROXY = process.env.TRUST_PROXY === 'true';
-
 // Security headers.
-// upgradeInsecureRequests and HSTS are only active behind an HTTPS-terminating
-// proxy (Cloudflare Tunnel). On plain HTTP (direct LAN access, local dev) these
-// headers cause the browser to upgrade all resource URLs to HTTPS and refuse to
-// load CSS/JS/forms — so they must be disabled for HTTP-only access.
+// upgradeInsecureRequests and HSTS always disabled: Cloudflare Tunnel handles
+// HTTPS at the edge. Sending these from the origin breaks direct HTTP access
+// (Unraid LAN port 3000, local dev) because the browser upgrades all resource
+// URLs to HTTPS which then fail. Cloudflare enforces HTTPS independently.
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -36,14 +34,10 @@ app.use(
         // OSM tile images fetched as <img> elements by Leaflet
         imgSrc: ["'self'", 'data:', 'https://*.tile.openstreetmap.org', 'https://unpkg.com'],
         connectSrc: ["'self'"],
-        // Only upgrade HTTP subrequests to HTTPS when behind an HTTPS proxy.
-        // On plain HTTP this breaks all relative resource URLs.
-        upgradeInsecureRequests: IS_HTTPS_PROXY ? [] : null,
+        upgradeInsecureRequests: null,
       },
     },
-    // HSTS only behind HTTPS proxy — on plain HTTP it locks the browser into
-    // HTTPS-only mode for the IP/hostname, breaking all future HTTP access.
-    hsts: IS_HTTPS_PROXY ? undefined : false,
+    hsts: false,
   })
 );
 
