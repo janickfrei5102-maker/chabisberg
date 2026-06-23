@@ -77,9 +77,11 @@ app.use(
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      // Secure=true only behind HTTPS proxy. Without `trust proxy`, Express
-      // sees the tunnel's plain HTTP and would never set Secure cookies.
-      secure: process.env.TRUST_PROXY === 'true',
+      // Secure=false: works on both plain HTTP (direct LAN / Unraid port 3000)
+      // and HTTPS (Cloudflare Tunnel). Cloudflare enforces HTTPS at the edge;
+      // the origin-to-browser leg is always same-network HTTP. A Secure=true
+      // cookie would be silently dropped by browsers on HTTP, breaking login.
+      secure: false,
       sameSite: 'lax',
       // No default maxAge — session cookie (expires on browser close).
       // POST /auth/login sets maxAge=30 days when "Eingeloggt bleiben" is checked.
@@ -118,6 +120,9 @@ app.use(attachCsrfToken);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '../views'));
+// Disable ETag for dynamic views — prevents 304 responses that serve a
+// cached login page with a stale CSRF token, causing 403 on form submit.
+app.set('etag', false);
 
 app.use('/auth', require('./routes/auth'));
 app.use('/admin', require('./routes/admin'));
