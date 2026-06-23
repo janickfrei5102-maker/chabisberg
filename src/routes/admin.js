@@ -193,7 +193,7 @@ router.get('/users/:id/edit', async (req, res, next) => {
       addresses.findAll(),
     ]);
     if (!user) return res.status(404).render('error', { message: 'Nicht gefunden', status: 404 });
-    res.render('admin/users/form', { user, addresses: allAddresses, error: null });
+    res.render('admin/users/form', { user, addresses: allAddresses, error: req.query.error || null });
   } catch (err) {
     next(err);
   }
@@ -209,7 +209,10 @@ router.post('/users/:id', async (req, res, next) => {
     };
     // Password reset: only update hash when a new password is supplied.
     // Leaving the field empty keeps the existing password unchanged.
-    if (password && password.length >= 8) {
+    if (password) {
+      if (password.length < 8) {
+        return res.redirect(`/admin/users/${req.params.id}/edit?error=Passwort+muss+mindestens+8+Zeichen+haben`);
+      }
       updates.password_hash = await bcrypt.hash(password, BCRYPT_ROUNDS);
     }
     await users.update(req.params.id, updates);
