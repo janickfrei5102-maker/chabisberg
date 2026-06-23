@@ -58,8 +58,20 @@ router.get('/', requireAuth, async (req, res, next) => {
   }
 });
 
-router.get('/map', requireAuth, (_req, res) => {
-  res.render('map');
+router.get('/map', requireAuth, async (req, res, next) => {
+  try {
+    const allAddresses = await addresses.findAllWithResidents();
+    // Sort by longitude descending; addresses without coordinates go last
+    allAddresses.sort((a, b) => {
+      if (a.lng == null && b.lng == null) return 0;
+      if (a.lng == null) return 1;
+      if (b.lng == null) return -1;
+      return b.lng - a.lng;
+    });
+    res.render('map', { addresses: allAddresses });
+  } catch (err) {
+    next(err);
+  }
 });
 
 // ─── Address detail view ──────────────────────────────────────────────────────

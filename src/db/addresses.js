@@ -42,6 +42,19 @@ module.exports = function createAddressRepo(db) {
       return addresses.map((a) => ({ ...a, residents: byAddress[a.id] || [] }));
     },
 
+    async findAllWithResidents() {
+      const allAddresses = await db('addresses').select('*');
+      const allResidents = await db('residents')
+        .select('id', 'address_id', 'display_name', 'picture', 'type')
+        .orderBy('display_name');
+      const byAddress = {};
+      for (const r of allResidents) {
+        if (!byAddress[r.address_id]) byAddress[r.address_id] = [];
+        byAddress[r.address_id].push(r);
+      }
+      return allAddresses.map((a) => ({ ...a, residents: byAddress[a.id] || [] }));
+    },
+
     async findByIdWithResidents(id) {
       const address = await db('addresses').where({ id }).first();
       if (!address) return null;
