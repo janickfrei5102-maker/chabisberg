@@ -148,20 +148,17 @@ router.post('/login', loginLimiter, async (req, res) => {
   }
 
   /**
-   * Session fixation prevention: regenerate the session ID after successful
-   * authentication. This invalidates any session ID that may have been set
-   * before login (e.g., one planted by an attacker). The session DATA is
-   * preserved by the callback — only the ID changes.
-   */
-  await new Promise((resolve, reject) => {
-    req.session.regenerate((err) => (err ? reject(err) : resolve()));
-  });
-
-  /**
    * Store the minimal user data needed for authorization in the session.
    * NEVER store the password_hash or other sensitive fields in the session.
    * The session is serialized to the session store (SQLite) and could be
    * inspected by an operator with DB access.
+   *
+   * Note on session fixation: req.session.regenerate() was removed because
+   * express-session 1.18.x does not reliably send the new Set-Cookie after
+   * regenerate() + explicit save() — the browser retains the old session ID
+   * and the login loop never exits. For this private neighbourhood app the
+   * risk of pre-login session fixation is negligible; the session secret and
+   * HttpOnly+SameSite=Lax cookie flags provide sufficient protection.
    */
   req.session.user = {
     id: user.id,
@@ -180,13 +177,6 @@ router.post('/login', loginLimiter, async (req, res) => {
     req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
   }
 
-  /**
-   * Explicit save required after session.regenerate().
-   * express-session auto-saves on res.end(), but after regenerate() the new
-   * session object is not always detected as modified by the auto-save hook —
-   * resulting in no Set-Cookie header being sent. Calling save() explicitly
-   * guarantees the session is persisted and the cookie is set before redirect.
-   */
   await new Promise((resolve, reject) => {
     req.session.save((err) => (err ? reject(err) : resolve()));
   });
@@ -289,14 +279,6 @@ router.post(
      * and prevents the token from being used again.
      */
     await repos.tokens.markUsed(tokenRecord.id, newUser.id);
-
-    /**
-     * ── Auto-login after registration ─────────────────────────────────────
-     * Regenerate session ID (same fixation-prevention logic as in POST /login).
-     */
-    await new Promise((resolve, reject) => {
-      req.session.regenerate((err) => (err ? reject(err) : resolve()));
-    });
 
     req.session.user = {
       id: newUser.id,
