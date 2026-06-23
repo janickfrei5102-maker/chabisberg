@@ -94,14 +94,16 @@
   (function () {
     // Default center: Quartier Chabisberg
     var CENTER = [47.510679, 8.219608];
-    var DEFAULT_ZOOM = 16;
+    var DEFAULT_ZOOM = 17;
 
     var map = L.map('map').setView(CENTER, DEFAULT_ZOOM);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    L.tileLayer('https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png', {
       attribution:
+        '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> ' +
+        '&copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> ' +
         '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 19,
+      maxZoom: 20,
     }).addTo(map);
 
     // Type → emoji for residents without a profile picture
