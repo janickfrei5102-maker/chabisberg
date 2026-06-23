@@ -19,7 +19,9 @@
 
           <div class="resident-avatar">
             <% if (r.picture) { %>
-              <img src="/thumbs/residents/<%= r.picture %>" alt="<%= r.display_name %>">
+              <button class="avatar-lightbox-btn" onclick="openLightbox('/addresses/<%= address.id %>/residents/<%= r.id %>/photo')" title="<%= r.display_name %> vergrössern" aria-label="Foto vergrössern">
+                <img src="/thumbs/residents/<%= r.picture %>" alt="<%= r.display_name %>">
+              </button>
             <% } else { %>
               <div class="avatar-placeholder">
                 <% var icons = { Erwachsener: '👤', Kind: '🧒', Katze: '🐱', Hund: '🐶' }; %>
@@ -101,5 +103,40 @@
   })();
 </script>
 <% } %>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox-overlay" style="display:none" onclick="closeLightbox()">
+  <div class="lightbox-inner" onclick="event.stopPropagation()">
+    <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+    <img id="lightbox-img" src="" alt="">
+  </div>
+</div>
+
+<style>
+  .avatar-lightbox-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: zoom-in;
+    display: block;
+  }
+  .avatar-lightbox-btn img { display: block; }
+</style>
+
+<script>
+  function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+  }
+  function closeLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+    document.body.style.overflow = '';
+    document.getElementById('lightbox-img').src = '';
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox();
+  });
+</script>
 
 <%- include('../partials/footer') %>

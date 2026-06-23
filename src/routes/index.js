@@ -1,9 +1,13 @@
 const express = require('express');
+const fs = require('fs');
 const path = require('path');
 const { requireAuth } = require('../middleware/requireAuth');
 const { addresses, posts, attachments } = require('../db/repos');
 const { postThumbUrl } = require('../middleware/upload');
 const router = express.Router();
+
+const UPLOAD_DIR = process.env.UPLOAD_DIR || './uploads';
+const PICTURE_EXTS = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.avif'];
 
 const PAGE_SIZE = 20;
 
@@ -79,6 +83,26 @@ router.get('/addresses/:id', requireAuth, async (req, res, next) => {
 // Security: requires auth — resident phone numbers and addresses are private.
 // No resident-ownership check needed: any logged-in user may save any neighbour's
 // contact (that is the explicit feature purpose).
+
+// Serve original resident photo (auth required — contact data is private).
+router.get('/addresses/:id/residents/:rid/photo', requireAuth, async (req, res, next) => {
+  try {
+    const address = await addresses.findByIdWithResidents(req.params.id);
+    if (!address) return res.status(404).send('Not found');
+    const resident = address.residents.find((r) => String(r.id) === String(req.params.rid));
+    if (!resident?.picture) return res.status(404).send('Not found');
+
+    const uuid = path.basename(resident.picture, '.jpg');
+    for (const ext of PICTURE_EXTS) {
+      const p = path.join(UPLOAD_DIR, 'residents', uuid + ext);
+      if (fs.existsSync(p)) return res.sendFile(path.resolve(p));
+    }
+    // Fallback: serve thumbnail
+    return res.redirect(`/thumbs/residents/${resident.picture}`);
+  } catch (err) {
+    next(err);
+  }
+});
 
 router.get('/addresses/:id/residents/:rid/vcard', requireAuth, async (req, res, next) => {
   try {
