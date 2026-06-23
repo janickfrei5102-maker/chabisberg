@@ -16,6 +16,7 @@
 
 const express = require('express');
 const path = require('path');
+const bcrypt = require('bcrypt');
 const { requireAuth, requireOwnsAddress } = require('../middleware/requireAuth');
 const {
   uploadPicture,
@@ -25,6 +26,8 @@ const {
 const { addresses, residents, users } = require('../db/repos');
 
 const router = express.Router();
+
+const BCRYPT_ROUNDS = process.env.NODE_ENV === 'test' ? 4 : 12;
 
 // Every route in this file requires login
 router.use(requireAuth);
@@ -90,7 +93,38 @@ router.get('/', async (req, res, next) => {
       address,
       residents: residentList,
       message: req.query.message || null,
+      password_error: req.query.password_error || null,
     });
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── Password change ──────────────────────────────────────────────────────────
+
+router.post('/password', async (req, res, next) => {
+  const { current_password, new_password, new_password_confirm } = req.body;
+  const redirect = (msg) => res.redirect(`/profile?password_error=${encodeURIComponent(msg)}`);
+
+  if (!current_password || !new_password || !new_password_confirm) {
+    return redirect('Alle Felder ausfüllen.');
+  }
+  if (new_password.length < 8) {
+    return redirect('Neues Passwort muss mindestens 8 Zeichen haben.');
+  }
+  if (new_password !== new_password_confirm) {
+    return redirect('Neue Passwörter stimmen nicht überein.');
+  }
+
+  try {
+    const currentUser = await users.findById(req.session.user.id);
+    const valid = await bcrypt.compare(current_password, currentUser.password_hash);
+    if (!valid) {
+      return redirect('Aktuelles Passwort falsch.');
+    }
+    const hash = await bcrypt.hash(new_password, BCRYPT_ROUNDS);
+    await users.update(req.session.user.id, { password_hash: hash });
+    res.redirect('/profile?message=Passwort+ge%C3%A4ndert');
   } catch (err) {
     next(err);
   }
