@@ -98,12 +98,9 @@
 
     var map = L.map('map').setView(CENTER, DEFAULT_ZOOM);
 
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png', {
-      attribution:
-        '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> ' +
-        '&copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> ' +
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-      maxZoom: 20,
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
     }).addTo(map);
 
     // Type → emoji for residents without a profile picture

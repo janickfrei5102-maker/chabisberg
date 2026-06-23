@@ -91,12 +91,9 @@
       keyboard: false,
     }).setView([lat, lng], 17);
 
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/osm_bright/{z}/{x}/{y}{r}.png', {
-      attribution:
-        '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a> ' +
-        '&copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> ' +
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 20,
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      maxZoom: 19,
     }).addTo(map);
 
     // Marker without popup — decorative only, shows location but has no click action

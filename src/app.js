@@ -32,13 +32,7 @@ app.use(
         scriptSrcAttr: ["'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'", 'https://unpkg.com'],
         // OSM tile images fetched as <img> elements by Leaflet
-        imgSrc: [
-          "'self'",
-          'data:',
-          'https://*.tile.openstreetmap.org',
-          'https://tiles.stadiamaps.com',
-          'https://unpkg.com',
-        ],
+        imgSrc: ["'self'", 'data:', 'https://*.tile.openstreetmap.org', 'https://unpkg.com'],
         connectSrc: ["'self'"],
         upgradeInsecureRequests: null,
       },
