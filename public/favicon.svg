@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Outer leaves -->
+  <ellipse cx="50" cy="52" rx="44" ry="40" fill="#6db86d"/>
+  <ellipse cx="50" cy="50" rx="38" ry="34" fill="#a8d5a2"/>
+  <!-- Inner head -->
+  <ellipse cx="50" cy="50" rx="28" ry="26" fill="#d4edcf"/>
+  <ellipse cx="50" cy="50" rx="20" ry="18" fill="#e8f5e5"/>
+  <!-- Leaf veins on outer leaves -->
+  <path d="M18 38 Q50 30 82 38" stroke="#5a9e5a" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M12 52 Q50 44 88 52" stroke="#5a9e5a" stroke-width="2" fill="none" opacity="0.6"/>
+  <path d="M16 66 Q50 58 84 66" stroke="#5a9e5a" stroke-width="2" fill="none" opacity="0.6"/>
+  <!-- Inner head spiral lines -->
+  <path d="M50 34 Q62 40 62 50 Q62 60 50 64 Q38 60 38 50 Q38 40 50 34" stroke="#b8d9b4" stroke-width="1.5" fill="none"/>
+  <path d="M50 40 Q58 44 58 50 Q58 56 50 58 Q42 56 42 50 Q42 44 50 40" stroke="#b8d9b4" stroke-width="1" fill="none"/>
+  <!-- Stem nub -->
+  <ellipse cx="50" cy="88" rx="8" ry="5" fill="#8bc48b"/>
+  <rect x="46" y="83" width="8" height="8" rx="2" fill="#8bc48b"/>
+</svg>
