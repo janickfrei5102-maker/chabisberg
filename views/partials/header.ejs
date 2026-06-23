@@ -11,8 +11,8 @@
 <nav>
   <a href="/" class="nav-brand">Chabisberg</a>
   <% if (user) { %>
-    <a href="/" class="nav-link<%= currentPath === '/' ? ' nav-active' : '' %>">News</a>
-    <a href="/map" class="nav-link<%= currentPath === '/map' ? ' nav-active' : '' %>">Karte</a>
+    <a href="/" class="nav-link<%= currentPath === '/' ? ' nav-active' : '' %>">Beiträge</a>
+    <a href="/map" class="nav-link<%= currentPath === '/map' ? ' nav-active' : '' %>">Quartier</a>
     <a href="/profile" class="nav-link<%= (currentPath || '').startsWith('/profile') ? ' nav-active' : '' %>">Mein Profil</a>
     <% if (user.role === 'admin') { %>
       <a href="/admin" class="nav-link<%= (currentPath || '').startsWith('/admin') ? ' nav-active' : '' %>">Admin</a>
