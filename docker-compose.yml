@@ -16,7 +16,7 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD must be set}
       # Trust the Cloudflare Tunnel reverse proxy for HTTPS detection and
       # client IP extraction. Set to "false" for local dev without a proxy.
-      TRUST_PROXY: "true"
+      TRUST_PROXY: "${TRUST_PROXY:-true}"
 
     volumes:
       # SQLite database
