@@ -61,6 +61,11 @@ Abweichung vom Stack → in README begründen.
 ### `tokens` (Registrierungs-Token)
 `id` (PK) · `token` (~6 Zeichen) · `used` (bool) · `created_at` · `used_by_user_id` (optional)
 
+### `comments`
+`id` (PK) · `post_id` (FK→posts, CASCADE delete) · `author_user_id` (FK→users, CASCADE delete) · `body` (text) · `created_at` · `updated_at`
+
+Kommentare werden chronologisch unter dem zugehörigen Post angezeigt. Löschen: Autor oder Admin. Keine Verschachtelung (flat).
+
 **Kernregel (serverseitig erzwingen, bei JEDEM schreibenden Request):**
 - resident bearbeitet AUSSCHLIESSLICH Daten seiner verknüpften `address_id`.
 - User mit Adresse darf weitere User mit derselben Adresse verknüpfen (z.B. Ehepartner berechtigen).

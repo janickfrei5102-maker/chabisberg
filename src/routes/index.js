@@ -2,7 +2,7 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const { requireAuth } = require('../middleware/requireAuth');
-const { addresses, posts, attachments } = require('../db/repos');
+const { addresses, posts, attachments, comments } = require('../db/repos');
 const { postThumbUrl } = require('../middleware/upload');
 const router = express.Router();
 
@@ -41,9 +41,17 @@ router.get('/', requireAuth, async (req, res, next) => {
       });
     }
 
+    const allComments = await comments.findByPostIds(postIds);
+    const commentsByPost = {};
+    for (const c of allComments) {
+      if (!commentsByPost[c.post_id]) commentsByPost[c.post_id] = [];
+      commentsByPost[c.post_id].push(c);
+    }
+
     const enrichedPosts = postRows.map((p) => ({
       ...p,
       attachments: attachByPost[p.id] || [],
+      comments: commentsByPost[p.id] || [],
     }));
 
     res.render('news', {

@@ -11,4 +11,5 @@ module.exports = {
   tokens: require('./tokens')(db),
   posts: require('./posts')(db),
   attachments: require('./attachments')(db),
+  comments: require('./comments')(db),
 };

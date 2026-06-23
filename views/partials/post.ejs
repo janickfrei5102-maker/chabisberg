@@ -58,4 +58,34 @@
       <% }); %>
     </ul>
   <% } %>
+  <!-- Comments -->
+  <div class="comments-section">
+    <% if (post.comments && post.comments.length > 0) { %>
+      <div class="comments-list">
+        <% post.comments.forEach(function(c) { %>
+          <div class="comment">
+            <div class="comment-meta">
+              <strong><%= c.author_display_name || c.author_username %></strong>
+              <time class="comment-time" datetime="<%= c.created_at %>">
+                <%= new Date(c.created_at).toLocaleDateString('de-CH', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+              </time>
+              <% if (user && (user.id === c.author_user_id || user.role === 'admin')) { %>
+                <form action="/posts/<%= post.id %>/comments/<%= c.id %>/delete" method="POST" class="comment-delete-form">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                  <button type="submit" class="btn-danger btn-xs" onclick="return confirm('Kommentar löschen?')">×</button>
+                </form>
+              <% } %>
+            </div>
+            <div class="comment-body"><%= c.body %></div>
+          </div>
+        <% }); %>
+      </div>
+    <% } %>
+
+    <form action="/posts/<%= post.id %>/comments" method="POST" class="comment-form">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <textarea name="body" rows="2" placeholder="Kommentar schreiben…" required></textarea>
+      <button type="submit">Kommentieren</button>
+    </form>
+  </div>
 </article>

@@ -21,7 +21,7 @@ const {
   createPostThumbnail,
   deleteAttachmentFiles,
 } = require('../middleware/upload');
-const { posts, attachments } = require('../db/repos');
+const { posts, attachments, comments } = require('../db/repos');
 
 const router = express.Router();
 
@@ -140,6 +140,50 @@ router.post('/:id/delete', requireAuth, async (req, res, next) => {
     }
 
     res.redirect('/');
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── Create comment ───────────────────────────────────────────────────────────
+
+router.post('/:id/comments', requireAuth, async (req, res, next) => {
+  try {
+    const { body } = req.body;
+    if (!body?.trim()) return res.redirect('/');
+
+    const post = await posts.findById(req.params.id);
+    if (!post)
+      return res.status(404).render('error', { message: 'Post nicht gefunden.', status: 404 });
+
+    await comments.create({
+      post_id: post.id,
+      author_user_id: req.session.user.id,
+      body: body.trim(),
+    });
+
+    res.redirect(`/#post-${post.id}`);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ─── Delete comment ───────────────────────────────────────────────────────────
+
+router.post('/:id/comments/:cid/delete', requireAuth, async (req, res, next) => {
+  try {
+    const comment = await comments.findById(req.params.cid);
+    if (!comment)
+      return res.status(404).render('error', { message: 'Kommentar nicht gefunden.', status: 404 });
+
+    const isAuthor = Number(comment.author_user_id) === Number(req.session.user.id);
+    const isAdmin = req.session.user.role === 'admin';
+    if (!isAuthor && !isAdmin) {
+      return res.status(403).render('error', { message: 'Keine Berechtigung.', status: 403 });
+    }
+
+    await comments.delete(comment.id);
+    res.redirect(`/#post-${req.params.id}`);
   } catch (err) {
     next(err);
   }
