@@ -180,6 +180,17 @@ router.post('/login', loginLimiter, async (req, res) => {
     req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
   }
 
+  /**
+   * Explicit save required after session.regenerate().
+   * express-session auto-saves on res.end(), but after regenerate() the new
+   * session object is not always detected as modified by the auto-save hook —
+   * resulting in no Set-Cookie header being sent. Calling save() explicitly
+   * guarantees the session is persisted and the cookie is set before redirect.
+   */
+  await new Promise((resolve, reject) => {
+    req.session.save((err) => (err ? reject(err) : resolve()));
+  });
+
   return res.redirect(redirectTo);
 });
 
@@ -293,6 +304,10 @@ router.post(
       role: newUser.role,
       address_id: newUser.address_id,
     };
+
+    await new Promise((resolve, reject) => {
+      req.session.save((err) => (err ? reject(err) : resolve()));
+    });
 
     return res.redirect('/');
   }
