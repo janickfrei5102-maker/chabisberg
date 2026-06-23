@@ -177,10 +177,12 @@ router.post('/login', loginLimiter, async (req, res) => {
     req.session.cookie.maxAge = 30 * 24 * 60 * 60 * 1000; // 30 days
   }
 
-  await new Promise((resolve, reject) => {
-    req.session.save((err) => (err ? reject(err) : resolve()));
-  });
-
+  // Do NOT call session.save() explicitly here.
+  // express-session wraps res.end() and auto-saves on response. Calling
+  // save() first sets savedHash, making isSaved()=true, which causes
+  // shouldSave()=false in the res.end() hook — res._implicitHeader() is
+  // then never called, the onHeaders hook never fires, and Set-Cookie is
+  // never sent. Let the auto-save path handle everything.
   return res.redirect(redirectTo);
 });
 
@@ -286,10 +288,6 @@ router.post(
       role: newUser.role,
       address_id: newUser.address_id,
     };
-
-    await new Promise((resolve, reject) => {
-      req.session.save((err) => (err ? reject(err) : resolve()));
-    });
 
     return res.redirect('/');
   }
