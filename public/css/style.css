@@ -16,6 +16,7 @@ nav {
   background: #2c5f2e;
   color: #fff;
   position: relative;
+  z-index: 1000;
 }
 nav a,
 nav button {
@@ -92,7 +93,7 @@ nav .nav-logout {
     top: 100%;
     left: 0;
     right: 0;
-    z-index: 200;
+    z-index: 1001;
     flex-direction: column;
     align-items: stretch;
     gap: 0;
